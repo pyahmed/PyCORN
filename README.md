@@ -12,6 +12,7 @@ Limitations:
 
 Requirements:
 - Python 2.7 or 3.x (Tested on 2.7/3.4 on Windows)
+- optional matplotlib (for plotting)
 
 Usage:
 
