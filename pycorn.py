@@ -35,6 +35,8 @@ parser.add_argument("-e", "--extract",
 parser.add_argument("-p", "--plot", 
                     help = 'Plot curves',
                     action = "store_true")
+parser.add_argument("-f", "--format", type = str, default = 'pdf', 
+                    help = "File format of plot files")
 parser.add_argument("-u", "--user", 
                     help = "Show stored user name",
                     action = "store_true")
@@ -78,7 +80,7 @@ def input_check(inp):
         print(" Input is UNICORN 3.10 file!")
         x,y = (0,0)
     else:
-        print(" Input not UNICORN 3.10 file!")
+        print(" Input is not UNICORN 3.10 file!")
         x,y = (1,1)
     if z[0] == os.path.getsize(file_in):
         print(" File size check - OK")
@@ -86,7 +88,12 @@ def input_check(inp):
     else:
         print(" File size mismatch - file corrupted?")
         z = 1
-    return(x,y,z)
+    if (x,y,z) != (0,0,0):
+        print("\n File not supported - stop!")
+        return False
+    else:
+        print("\n Alles safe! - Go go go!")
+        return True
 
 
 def readheader(inp):
@@ -168,8 +175,8 @@ def meta1_read(in_tup, silent="false"):
             dp = struct.unpack("dd158s", fread[i:i+174])
             #acc_time = dp[0] # not used atm
             acc_volume = round(dp[1]-inj_sel,4)
-            label = codecs.decode(dp[2], 'cp1250')
-            merged_data=acc_volume,label.rstrip('\x00')#.encode("utf-8")
+            label = (codecs.decode(dp[2], 'cp1250')).rstrip('\x00')
+            merged_data=acc_volume,label
             finaldata.append(merged_data)
     finaldata.insert(0, in_tup[0])
     return(finaldata)
@@ -302,33 +309,48 @@ def data_writer(in_list):
                 fout.write(dp)
 
 
+def plotter2(in_list):
+    sep = in_list[0].find(":")+1
+    label = in_list[0][sep:]
+    run_name = in_list[0][:sep-1]
+    f_list = in_list[1:] #filter the list
+    x_val=[x[0] for x in f_list]
+    y_val=[x[1] for x in f_list]
+    plot_x_min = 100#in_list[1][0]
+    plot_x_max = 200#in_list[-1][0]
+    if type(y_val[0]) == float or type(y_val[0]) == int:
+        print(" Plotting " + label)
+        plt.xlim(xmin = plot_x_min, xmax = plot_x_max)
+        plt.title(file_in + " : " + run_name + " - " + label)
+        plt.xlabel('ml')
+        plt.grid(which='major', axis='both')
+        plt.plot(x_val, y_val,linewidth=1.5, alpha=0.85,color='b')
+        ext = args.format
+        fname = file_base + "_Plot_" + run_name + "_" + label + ext
+        plt.savefig(fname, dpi=300)
+        plt.clf()
+        
+
 def plotter(in_list):
-    try:
-        import matplotlib.pyplot as plt
-    except ImportError:
-        print(" Matplotlib not found - Plotting will not work!")
-        endscript()
-    else:
-        print(" Matplotlib found - WARNING - PLOTTING IS EXPERIMENTAL")
-        sep = in_list[0].find(":")+1
-        label = in_list[0][sep:]
-        run_name = in_list[0][:sep-1]
-        f_list = in_list[1:] #filter the list
-        x_val=[x[0] for x in f_list]
-        y_val=[x[1] for x in f_list]
-        plot_x_min = in_list[1][0]
-        plot_x_max = in_list[-1][0]
-        if type(y_val[0]) == float:
-            print(" Plotting %s" %label)
-            plt.xlim(xmin = plot_x_min, xmax = plot_x_max)
-            plt.title("%s: " %file_in + run_name + " - " "%s" %label)
-            plt.xlabel('ml')
-            plt.grid(which='major', axis='both')
-            plt.plot(x_val, y_val,linewidth=1.5, alpha=0.85,color='b')
-            ext = '.pdf'
-            fname = file_base + "_Plot_" + run_name + "_" + label + ext
-            plt.savefig(fname, dpi=300)
-            plt.clf()
+    sep = in_list[0].find(":")+1
+    label = in_list[0][sep:]
+    run_name = in_list[0][:sep-1]
+    f_list = in_list[1:] #filter the list
+    x_val=[x[0] for x in f_list]
+    y_val=[x[1] for x in f_list]
+    plot_x_min = in_list[1][0]
+    plot_x_max = in_list[-1][0]
+    if type(y_val[0]) == float or type(y_val[0]) == int:
+        print(" Plotting " + label)
+        plt.xlim(xmin = plot_x_min, xmax = plot_x_max)
+        plt.title(file_in + " - " + run_name + " - " + label)
+        plt.xlabel('ml')
+        plt.grid(which='major', axis='both')
+        plt.plot(x_val, y_val,linewidth=1.5, alpha=0.85,color='b')
+        ext = "." + (args.format)[-3:]
+        fname = file_base + "_Plot_" + run_name + "_" + label + ext
+        plt.savefig(fname, dpi=300)
+        plt.clf()
 
 
 def endscript():
@@ -345,17 +367,29 @@ if args.info:
     showheader(file_in,full="false")
 if args.points:
     inject_det(file_in,show="true")
-if args.extract:
-    data_storage = []
-    if input_check(file_in) != (0,0,0):
-        print("\n Gotta stop!")
+if args.plot:
+    if input_check(file_in) == True:
+        try:
+            import matplotlib.pyplot as plt
+        except ImportError:
+            print("\n Matplotlib not found - Plotting will not work!\n")
+            endscript()
+        else:
+            print("\n Matplotlib found - WARNING - PLOTTING IS EXPERIMENTAL\n")
+            data_storage = []
+            store_in_list(file_in)
+            for i in data_storage:
+                plotter(i)
     else:
-        print("\n Go go go!")
+        pass
+if args.extract:
+    if input_check(file_in) == True:
+        data_storage = []
         store_in_list(file_in)
         for i in data_storage:
             writer(i)
-            if args.plot:
-                plotter(i)
+    else:
+        pass
 
 end = time.time()
 runtime = str(end - start)
