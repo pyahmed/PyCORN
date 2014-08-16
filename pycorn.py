@@ -309,28 +309,6 @@ def data_writer(in_list):
                 fout.write(dp)
 
 
-def plotter2(in_list):
-    sep = in_list[0].find(":")+1
-    label = in_list[0][sep:]
-    run_name = in_list[0][:sep-1]
-    f_list = in_list[1:] #filter the list
-    x_val=[x[0] for x in f_list]
-    y_val=[x[1] for x in f_list]
-    plot_x_min = 100#in_list[1][0]
-    plot_x_max = 200#in_list[-1][0]
-    if type(y_val[0]) == float or type(y_val[0]) == int:
-        print(" Plotting " + label)
-        plt.xlim(xmin = plot_x_min, xmax = plot_x_max)
-        plt.title(file_in + " : " + run_name + " - " + label)
-        plt.xlabel('ml')
-        plt.grid(which='major', axis='both')
-        plt.plot(x_val, y_val,linewidth=1.5, alpha=0.85,color='b')
-        ext = args.format
-        fname = file_base + "_Plot_" + run_name + "_" + label + ext
-        plt.savefig(fname, dpi=300)
-        plt.clf()
-        
-
 def plotter(in_list):
     sep = in_list[0].find(":")+1
     label = in_list[0][sep:]
