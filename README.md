@@ -1,7 +1,9 @@
 PyCORN
 ======
 
-A script to extract data from .res files from UNICORN software
+A script to extract data from UNICORN .res files and plot them.
+
+![With fractions - yay!](https://github.com/pyahmed/PyCORN/blob/dev/samples/sample1_Plot_2009Jun16no001_UV.jpg)
 
 Description: 
 
