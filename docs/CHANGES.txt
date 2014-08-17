@@ -1,0 +1,12 @@
+v0.11
+======
+- changed data structure (now mostly dicts)
+- made plotting independent of writing csv/txt files
+- all plots contain (if present) fractions
+- x-axis scaling is based on first and last fraction
+- plots can be saved now in all matplotlib-supported formats (default: pdf)
+
+
+v0.1
+======
+- Initial release

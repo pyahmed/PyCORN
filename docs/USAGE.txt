@@ -1,0 +1,47 @@
+How to use PyCORN
+=================
+
+usage: pycorn.py [-h] [-c] [-n] [-i #] [-t] [-e] [-p]
+                 [-f {svg,svgz,tif,tiff,jpg,jpeg,png,ps,eps,raw,rgba,pdf}]
+                 [-u]
+                 <file>.res
+
+Extract data from UNICORN .res files to .csv/.txt and plot them (matplotlib
+required)
+
+positional arguments:
+  <file>.res            Input .res file
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c, --check           Perform simple check if file is supported
+  -n, --info            Display entries in header
+  -i #, --inject #      Set injection number # as zero retention, use -t to
+                        find injection points
+  -t, --points          Display injection points
+  -e, --extract         Extract supported data blocks
+  -p, --plot            Plot curves
+  -f {svg,svgz,tif,		File format of plot files (default: pdf)
+  tiff,jpg,jpeg,png,ps
+  ,eps,raw,rgba,pdf}, 
+  --format {svg,svgz,
+  tif,tiff,jpg,jpeg,png,
+  ps,eps,raw,rgba,pdf}
+                        
+  -u, --user            Show stored user name
+  
+Examples:
+Show user who ran method:
+pycorn.py -u input.res
+
+Show injection points:
+pycorn.py -t input.res
+
+Extract data to csv files:
+pycorn.py -e input.res
+
+Plot all data:
+pycorn.py -p input.res
+
+Extract/plot data and adjust retention volume to injection point 1 (counting starts at 0!):
+pycorn.py -p -e -i 1 input.res
