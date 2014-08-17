@@ -18,4 +18,8 @@ Usage:
 - See USAGE.txt
 
 License:
+<<<<<<< HEAD
 - GPLv2 see LICENSE.txt
+=======
+- GPLv2 see LICENSE.txt
+>>>>>>> origin/master
