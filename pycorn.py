@@ -11,8 +11,12 @@ import argparse
 import codecs
 import os
 import time
-
-start = time.time()
+try:
+    import matplotlib.pyplot as plt
+    print("\n Matplotlib found - WARNING - PLOTTING IS EXPERIMENTAL\n")
+except ImportError:
+    print("\n Matplotlib not found. Printing will not work!\n")
+    plt = None
 
 parser = argparse.ArgumentParser(
     description = "Extract data from UNICORN .res files to .csv/.txt and plot them (matplotlib required)",
@@ -39,6 +43,12 @@ group1 = parser.add_argument_group('Plotting', 'Options for plotting')
 group1.add_argument("-p", "--plot", 
                     help = 'Plot curves',
                     action = "store_true")
+group1.add_argument("-b", "--begin", type = float, default=None,
+                    help = "Start point for plotting ",
+                    metavar="#")
+group1.add_argument("-s", "--finish", type = float, default=None,
+                    help = "End point for plotting",
+                    metavar="#")
 group1.add_argument('-f', '--format', type = str,
                     choices=['svg','svgz','tif','tiff','jpg','jpeg','png','ps','eps','raw','rgba','pdf','pgf'],
                     default = 'pdf',
@@ -67,7 +77,6 @@ SensData_id = b'\x00\x00\x01\x00\x04\x00\x01\x14'
 Fractions_id = b'\x00\x00\x01\x00\x04\x00\x44\x04'
 Inject_id = b'\x00\x00\x01\x00\x04\x00\x46\x04'
 LogBook_id = b'\x00\x00\x01\x00\x02\x00\x01\x13' #capital B!
-
 inj_sel = 0.0   #injection point is by default 0.0 ml
 
 
@@ -88,7 +97,7 @@ def input_check(inp):
     else:
         print(" Input is not UNICORN 3.10 file!")
         x,y = (1,1)
-    if z[0] == os.path.getsize(file_in):
+    if z[0] == os.path.getsize(inp):
         print(" File size check - OK")
         z = 0
     else:
@@ -136,7 +145,7 @@ def showheader(inp,full="true"):
     '''
     Prints content of header
     '''
-    header = readheader(file_in)
+    header = readheader(inp)
     print((" ---- \n Header of {0}: \n").format(inp))
     if full == "true":
         print("  MAGIC_ID, ENTRY_NAME, BLOCK_SIZE, OFFSET_TO_NEXT, ADRESSE, OFFSET_TO_DATA")
@@ -269,9 +278,10 @@ def store_in_list(inp):
     '''
     extract all data and store in list
     '''
+    extracted_data = []
     global inj_sel
     try:
-        inj_sel = inject_det(file_in,show="false")[args.inject]
+        inj_sel = inject_det(inp,show="false")[args.inject]
     except IndexError:
         print("\n ERROR - Injection point does not exist! Selected default.\n")
         inj_sel = 0.0        
@@ -281,7 +291,8 @@ def store_in_list(inp):
         if x == None:
             pass
         else:
-            data_storage.append(x)
+            extracted_data.append(x)
+    return extracted_data
 
 
 def writer(inp):
@@ -348,6 +359,10 @@ def plotter(inp,fractions):
     else:
         plot_x_min = fractions[0][0]
         plot_x_max = fractions[-1][0]
+    if args.begin != None:
+        plot_x_min = args.begin
+    if args.finish != None:
+        plot_x_max = args.finish
     plot_y_min,plot_y_max = expander(min(y_val),max(y_val),0.04)
     ax = plt.gca()
     if type(y_val[0]) == float or type(y_val[0]) == int:
@@ -381,31 +396,25 @@ def endscript():
     print(" Plotting canceled")
     exit
 
-#--- run time---#
-
-if args.user:
-    showuser(file_in)
-    
-if args.check:
-    input_check(file_in)
-    
-if args.info:
-    showheader(file_in,full="false")
-    
-if args.points:
-    inject_det(file_in,show="true")
-    
-if args.plot:
-    if input_check(file_in) == True:
-        try:
-            import matplotlib.pyplot as plt
-        except ImportError:
-            print("\n Matplotlib not found - Plotting will not work!\n")
-            endscript()
-        else:
-            print("\n Matplotlib found - WARNING - PLOTTING IS EXPERIMENTAL\n")
-            data_storage = []
-            store_in_list(file_in)
+def main():
+    print(args.begin)
+    print(args.finish)
+    start = time.time()
+    if args.user:
+        showuser(file_in)
+    if args.check:
+        input_check(file_in)
+    if args.info:
+        showheader(file_in,full="false")     
+    if args.points:
+        inject_det(file_in,show="true")
+    if args.plot or args.extract:
+        if input_check(file_in) == True:
+            data_storage = store_in_list(file_in)
+        if args.extract:
+            for i in data_storage:
+                writer(i)
+        if args.plot and plt !=None:
             magic_ids = [x['magic_id'] for x in data_storage]
             if Fractions_id in magic_ids:
                 fraction_idx = magic_ids.index(Fractions_id)
@@ -415,19 +424,9 @@ if args.plot:
             for i in data_storage:
                 if i['magic_id'] == SensData_id:
                     plotter(i,fractions)
-    else:
-        pass
+    end = time.time()
+    runtime = str(end - start)
+    print("\n ----")
+    print((" Runtime: {0} seconds!").format(runtime[:5]))
 
-if args.extract:
-    if input_check(file_in) == True:
-        data_storage = []
-        store_in_list(file_in)
-        for i in data_storage:
-            writer(i)
-    else:
-        pass
-
-end = time.time()
-runtime = str(end - start)
-print("\n ----")
-print((" Runtime: {0} seconds!").format(runtime[:5]))
+main()
