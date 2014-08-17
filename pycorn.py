@@ -26,16 +26,20 @@ parser.add_argument("-n", "--info",
 parser.add_argument("-i", "--inject", type = int, default = 0, 
                     help = "Set injection number # as zero retention, use -t to find injection points",
                     metavar="#")
+parser.add_argument("-r", "--reduce", type = int, default = 1,
+                    help = "Write/Plot only every n sample",
+                    metavar="#")
 parser.add_argument("-t", "--points", 
                     help = "Display injection points",
                     action = "store_true")
 parser.add_argument("-e", "--extract", 
                     help = "Extract supported data blocks",
                     action = "store_true")
-parser.add_argument("-p", "--plot", 
+group1 = parser.add_argument_group('Plotting', 'Options for plotting')
+group1.add_argument("-p", "--plot", 
                     help = 'Plot curves',
                     action = "store_true")
-parser.add_argument("-f", "--format", type = str,
+group1.add_argument('-f', '--format', type = str,
                     choices=['svg','svgz','tif','tiff','jpg','jpeg','png','ps','eps','raw','rgba','pdf','pgf'],
                     default = 'pdf',
                     help = "File format of plot files (default: pdf)")
@@ -184,8 +188,8 @@ def meta1_read(inp, silent="false"):
     if silent == "true":
         pass
     else:
-        print((" Extracting: {0}").format(inp['data_name']))
-    finaldata = []
+        print((" Reading: {0}").format(inp['data_name']))
+    final_data = []
     with open(file_in, 'rb') as fo:
         fread = fo.read()
         for i in range(inp['d_start'], inp['d_end'], 180):
@@ -194,15 +198,15 @@ def meta1_read(inp, silent="false"):
             acc_volume = round(dp[1]-inj_sel,4)
             label = (codecs.decode(dp[2], 'cp1250')).rstrip('\x00')
             merged_data=acc_volume,label
-            finaldata.append(merged_data)
-    return(finaldata)
+            final_data.append(merged_data)
+    return(final_data)
 
 
 def meta2_read(inp):
     '''
     Extracts meta-data/type2, Method/Program used in the run
     '''
-    print((" Extracting: {0}").format(inp['data_name']))
+    print((" Reading: {0}").format(inp['data_name']))
     with open(file_in,'rb') as fo:
         fo.seek(inp['d_start'])
         tmp_data = fo.read(inp['d_size'])
@@ -216,14 +220,14 @@ def sensor_read(inp):
     '''
     extracts sensor/run-data and applies correct division
     '''
-    tmp_list0 = []
+    final_data = []
     if "UV" in inp['data_name'] or "Cond" == inp['data_name'] or "Flow" == inp['data_name']:
         sensor_div = 1000.0
     elif "Pressure" in inp['data_name']:
         sensor_div = 100.0
     else:
         sensor_div = 10.0
-    print((" Extracting: {0}").format(inp['data_name']))
+    print((" Reading: {0}").format(inp['data_name']))
     with open(file_in, 'rb') as fo:
         fread = fo.read()
         for i in range(inp['adresse']+207, inp['adresse']+222, 15):
@@ -232,8 +236,8 @@ def sensor_read(inp):
         for i in range(inp['d_start'], inp['d_end'], 8):
             sread = struct.unpack("ii", fread[i:i+8])
             data=round((sread[0]/100.0)-inj_sel,4),sread[1]/sensor_div
-            tmp_list0.append(data)
-    return(tmp_list0,s_unit_dec)
+            final_data.append(data)
+    return(final_data[0::args.reduce],s_unit_dec)
 
 
 def inject_det(inp,show="false"):
@@ -344,8 +348,7 @@ def plotter(inp,fractions):
     else:
         plot_x_min = fractions[0][0]
         plot_x_max = fractions[-1][0]
-    plot_y_min = expander(min(y_val),max(y_val),0.04)[0]
-    plot_y_max = expander(min(y_val),max(y_val),0.04)[1]
+    plot_y_min,plot_y_max = expander(min(y_val),max(y_val),0.04)
     ax = plt.gca()
     if type(y_val[0]) == float or type(y_val[0]) == int:
         plt.xlim(xmin = plot_x_min, xmax = plot_x_max)

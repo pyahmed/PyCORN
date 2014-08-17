@@ -17,19 +17,20 @@ optional arguments:
   -c, --check           Perform simple check if file is supported
   -n, --info            Display entries in header
   -i #, --inject #      Set injection number # as zero retention, use -t to
+						find injection points
+  -r #, --reduce #      Write/Plot only every n sample
                         find injection points
   -t, --points          Display injection points
   -e, --extract         Extract supported data blocks
-  -p, --plot            Plot curves
-  -f {svg,svgz,tif,		File format of plot files (default: pdf)
-  tiff,jpg,jpeg,png,ps
-  ,eps,raw,rgba,pdf}, 
-  --format {svg,svgz,
-  tif,tiff,jpg,jpeg,png,
-  ps,eps,raw,rgba,pdf}
-                        
   -u, --user            Show stored user name
-  
+
+Plotting:
+  Options for plotting
+  -p, --plot            Plot curves
+  -f {svg,svgz,tif,tiff,jpg,jpeg,png,ps,eps,raw,rgba,pdf,pgf}, --format {svg,svg
+z,tif,tiff,jpg,jpeg,png,ps,eps,raw,rgba,pdf,pgf}
+                        File format of plot files (default: pdf)
+                        
 Examples:
 Show user who ran method:
 pycorn.py -u input.res
@@ -45,3 +46,6 @@ pycorn.py -p input.res
 
 Extract/plot data and adjust retention volume to injection point 1 (counting starts at 0!):
 pycorn.py -p -e -i 1 input.res
+
+Plot every third value:
+pycorn.py -p -r 3 input.res

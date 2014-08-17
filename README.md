@@ -17,7 +17,7 @@ Requirements:
 - optional matplotlib (for plotting)
 
 Usage:
-- See USAGE.txt
+- See docs/USAGE.txt
 
 License:
-- GPLv2 see LICENSE.txt
+- GPLv2 see docs/LICENSE.txt
