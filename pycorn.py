@@ -44,10 +44,10 @@ group1.add_argument("-p", "--plot",
                     help = 'Plot curves',
                     action = "store_true")
 group1.add_argument("-b", "--begin", type = float, default=None,
-                    help = "Start point for plotting ",
+                    help = "Start point for plotting (in ml)",
                     metavar="#")
 group1.add_argument("-s", "--finish", type = float, default=None,
-                    help = "End point for plotting",
+                    help = "End point for plotting (in ml)",
                     metavar="#")
 group1.add_argument('-f', '--format', type = str,
                     choices=['svg','svgz','tif','tiff','jpg','jpeg','png','ps','eps','raw','rgba','pdf','pgf'],

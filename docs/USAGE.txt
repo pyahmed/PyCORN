@@ -1,8 +1,8 @@
 How to use PyCORN
 =================
 
-usage: pycorn.py [-h] [-c] [-n] [-i #] [-t] [-e] [-p]
-                 [-f {svg,svgz,tif,tiff,jpg,jpeg,png,ps,eps,raw,rgba,pdf}]
+usage: pycorn.py [-h] [-c] [-n] [-i #] [-r #] [-t] [-e] [-p] [-b #] [-s #]
+                 [-f {svg,svgz,tif,tiff,jpg,jpeg,png,ps,eps,raw,rgba,pdf,pgf}]
                  [-u]
                  <file>.res
 
@@ -26,7 +26,10 @@ optional arguments:
 
 Plotting:
   Options for plotting
+
   -p, --plot            Plot curves
+  -b #, --begin #       Start point for plotting (in ml)
+  -s #, --finish #      End point for plotting (in ml)
   -f {svg,svgz,tif,tiff,jpg,jpeg,png,ps,eps,raw,rgba,pdf,pgf}, --format {svg,svg
 z,tif,tiff,jpg,jpeg,png,ps,eps,raw,rgba,pdf,pgf}
                         File format of plot files (default: pdf)
@@ -49,3 +52,6 @@ pycorn.py -p -e -i 1 input.res
 
 Plot every third value:
 pycorn.py -p -r 3 input.res
+
+Plot from 100 to 200ml:
+pycorn.py -p -b 100 -s 200 input.res
