@@ -266,7 +266,11 @@ def store_in_list(inp):
     extract all data and store in list
     '''
     global inj_sel
-    inj_sel = inject_det(file_in,show="false")[args.inject]
+    try:
+        inj_sel = inject_det(file_in,show="false")[args.inject]
+    except IndexError:
+        print("\n ERROR - Injection point does not exist! Selected default.\n")
+        inj_sel = 0.0        
     header = readheader(inp)
     for i in header:
         x = dataextractor(i)
