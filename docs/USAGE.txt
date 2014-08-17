@@ -1,6 +1,5 @@
 How to use PyCORN
 =================
-
 usage: pycorn.py [-h] [-c] [-n] [-i #] [-r #] [-t] [-e] [-p] [-b #] [-s #]
                  [-f {svg,svgz,tif,tiff,jpg,jpeg,png,ps,eps,raw,rgba,pdf,pgf}]
                  [-u]
@@ -33,6 +32,9 @@ Plotting:
   -f {svg,svgz,tif,tiff,jpg,jpeg,png,ps,eps,raw,rgba,pdf,pgf}, --format {svg,svg
 z,tif,tiff,jpg,jpeg,png,ps,eps,raw,rgba,pdf,pgf}
                         File format of plot files (default: pdf)
+
+Notes:
+By default PyCORN will plot from first to last fraction, as that is usually the interesting part. If no fractions are present in the run then from beginning to end. To override this behaviour you can use the (both) optional -b/-s switches to specify beginning and finish.
                         
 Examples:
 Show user who ran method:
