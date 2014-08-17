@@ -13,6 +13,7 @@ import os
 import time
 try:
     import matplotlib.pyplot as plt
+    from matplotlib.ticker import AutoMinorLocator
     print("\n Matplotlib found - WARNING - PLOTTING IS EXPERIMENTAL\n")
 except ImportError:
     print("\n Matplotlib not found. Printing will not work!\n")
@@ -363,20 +364,25 @@ def plotter(inp,fractions):
         plot_x_min = args.begin
     if args.finish != None:
         plot_x_max = args.finish
-    plot_y_min,plot_y_max = expander(min(y_val),max(y_val),0.04)
-    ax = plt.gca()
+    plot_y_min = expander(min(y_val),max(y_val),0.05)[0]
+    plot_y_max = expander(min(y_val),max(y_val),0.025)[1]
     if type(y_val[0]) == float or type(y_val[0]) == int:
         plt.xlim(xmin = plot_x_min, xmax = plot_x_max)
         plt.ylim(ymin = plot_y_min, ymax = plot_y_max)
-        frac_y_pos = mapper(ax.get_ylim()[0],ax.get_ylim()[1],0.02)
+        ax = plt.gca()
+        frac_y_pos = mapper(ax.get_ylim()[0],ax.get_ylim()[1],0.015)
         plt.title(file_in + " - " + inp['run_name'] + " - " + inp['data_name'], size=12)
         plt.ylabel(inp['unit'])
-        plt.xlabel('ml')
+        plt.xlabel('ml')        
         ax.spines['right'].set_color('none')
         ax.spines['top'].set_color('none')
-        plt.tick_params(axis='x',direction='out',top='off')
-        plt.tick_params(axis='y',direction='out',right='off')
+        plt.tick_params(axis='x',top='off',direction='out',length=6)
+        plt.tick_params(axis='y',right='off',direction='out',length=6)
         plt.plot(x_val, y_val,linewidth=1.5, color='b')
+        ax.xaxis.set_minor_locator(AutoMinorLocator())
+        ax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.tick_params(axis='x',top='off',which='minor', direction='out', length=4, color='0.17')
+        ax.tick_params(axis='y',right='off',which='minor', direction='out', length=4, color='0.17')
         if fractions != None:
             frac_x = [x[0] for x in fractions]
             frac_tmp = frac_x[1:]
@@ -397,8 +403,6 @@ def endscript():
     exit
 
 def main():
-    print(args.begin)
-    print(args.finish)
     start = time.time()
     if args.user:
         showuser(file_in)
