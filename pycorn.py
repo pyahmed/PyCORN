@@ -390,7 +390,7 @@ def plotter(inp,fractions):
             frac_delta = [abs(a - b) for a,b in zip(frac_tmp,frac_x)]
             for i in fractions:
                 plt.axvline(x=i[0], ymin=0.065, ymax=0.0,color='r', linewidth=0.85)
-                plt.annotate(i[1], xy=(i[0]+frac_delta[fractions.index(i)]*0.1,frac_y_pos), verticalalignment='bottom', size=8, rotation=90)
+                plt.annotate(i[1], xy=(i[0]+frac_delta[fractions.index(i)]*0.5,frac_y_pos), horizontalalignment='center', verticalalignment='bottom', size=8, rotation=90)
         print(" Plotting " + inp['data_name'])
         ext = "." + (args.format)[-3:]
         file_name = file_base + "_Plot_" + inp['run_name'] + "_" + inp['data_name'] + ext
