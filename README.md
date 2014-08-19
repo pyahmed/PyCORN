@@ -1,7 +1,7 @@
 PyCORN
 ======
 
-A script to extract data from UNICORN .res files and plot them.
+A script to extract data from UNICORN result (.res) files and plot them.
 
 ![With fractions - yay!](https://github.com/pyahmed/PyCORN/blob/dev/samples/sample1_Plot_2009Jun16no001_UV.jpg)
 
@@ -13,8 +13,8 @@ Limitations:
 - The Logbook is not written out at the moment because non-ascii chars are not handled.
 
 Requirements:
-- Python 2.7 or 3.x (Tested on 2.7/3.4 on Windows)
-- optional matplotlib (for plotting)
+- Python 2.7 or 3.x (Tested on Windows 7 / Mac OSX)
+- optional: working matplotlib installation (for plotting)
 
 Usage:
 - See docs/USAGE.txt
