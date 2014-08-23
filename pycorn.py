@@ -122,7 +122,7 @@ def readheader(inp):
         header_end = fread.find(LogBook_id) + 342
         for i in range(686,header_end, 344):
             decl = struct.unpack("8s296s4i", fread[i:i+320])
-            full_label = codecs.decode(decl[1], 'cp1252').rstrip("\x00")
+            full_label = codecs.decode(decl[1], 'iso8859-1').rstrip("\x00")
             if full_label.find(':') == -1:
                 r_name = ''
                 d_name = full_label
@@ -166,7 +166,7 @@ def showuser(inp):
     with open(inp, 'rb') as fo:
         fread = fo.read(512)
         u = struct.unpack("40s", fread[118:158])
-        dec_u = codecs.decode(u[0], 'cp1252').rstrip("\x00")
+        dec_u = codecs.decode(u[0], 'iso8859-1').rstrip("\x00")
         print((" ---- \n User: {0}").format(dec_u))
 
 
@@ -206,7 +206,7 @@ def meta1_read(inp, silent="false"):
             dp = struct.unpack("dd158s", fread[i:i+174])
             #acc_time = dp[0] # not used atm
             acc_volume = round(dp[1]-inj_sel,4)
-            label = (codecs.decode(dp[2], 'cp1250')).rstrip('\x00')
+            label = (codecs.decode(dp[2], 'iso8859-1')).rstrip('\x00')
             merged_data=acc_volume,label
             final_data.append(merged_data)
     return(final_data)
@@ -242,7 +242,7 @@ def sensor_read(inp):
         fread = fo.read()
         for i in range(inp['adresse']+207, inp['adresse']+222, 15):
             s_unit = struct.unpack("15s", fread[i:i+15])
-            s_unit_dec = (codecs.decode(s_unit[0], 'cp1252')).rstrip('\x00')
+            s_unit_dec = (codecs.decode(s_unit[0], 'iso8859-1')).rstrip('\x00')
         for i in range(inp['d_start'], inp['d_end'], 8):
             sread = struct.unpack("ii", fread[i:i+8])
             data=round((sread[0]/100.0)-inj_sel,4),sread[1]/sensor_div
@@ -311,26 +311,33 @@ def meta_writer(inp):
     writes meta-data to txt-files
     '''
     ext = "_"+inp['data_name']+".txt"
-    unicode_data = codecs.decode(inp['data'], 'cp1250')
+    unicode_data = codecs.decode(inp['data'], 'iso8859-1')
     content = unicode_data.encode('utf-8')
     with open(file_base+ext,'wb') as fout:
         print((" Writing {0}").format(inp['data_name']))
         fout.write(inp['data'])
 
-             
+
 def data_writer(inp):
     '''
     writes sensor/run-data to csv-files
     '''
-    fname = file_base+"_"+inp['run_name']+"_"+inp['data_name']+".csv"
-    if "Logbook" in inp['data_name']:
-        pass
+    val_x = [str(x[0]) for x in inp['data']]
+    if inp['data_name'] == 'Logbook':
+        ext = '.txt'
+        sep = '\t'
+        val_y = [x[1] for x in inp['data']]
     else:
-        with open(fname, 'wb') as fout:
-            print((" Writing {0}").format(inp['data_name']))
-            for i in inp['data']:
-                dp = (str(i[0]) + "," + str(i[1]) + str("\n")).encode('utf-8')
-                fout.write(dp)
+        ext = '.csv'
+        sep = ','
+        val_y = [str(x[1]) for x in inp['data']]
+    fname = file_base+"_"+inp['run_name']+"_"+inp['data_name']+ext
+    with open(fname, 'wb') as fout:
+        print((" Writing {0}").format(inp['data_name']))
+        for x,y in zip(val_x,val_y):
+            dp = (x + sep + y + str('\r\n')).encode('utf-8')
+            fout.write(dp)
+
 
 def mapper(min_val,max_val,perc):
     '''
