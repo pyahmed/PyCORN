@@ -442,6 +442,9 @@ def main():
             if Fractions_id in magic_ids:
                 fraction_idx = magic_ids.index(Fractions_id)
                 fractions = data_storage[fraction_idx]['data']
+            elif Fractions_id2 in magic_ids:
+                fraction_idx = magic_ids.index(Fractions_id2)
+                fractions = data_storage[fraction_idx]['data']       
             else:
                 fractions = None
             for i in data_storage:
