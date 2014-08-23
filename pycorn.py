@@ -263,7 +263,7 @@ def sensor_read(inp):
 
 def inject_det(inp,show="false"):
     '''
-    Finds injection points - required for adjusting retention
+    Finds injection points - required for adjusting retention volume
     '''
     injection_points = []
     header = readheader(inp)
