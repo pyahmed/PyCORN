@@ -3,7 +3,7 @@
 PyCORN - script to extract data from .res (results) files generated 
 by UNICORN Chromatography software supplied with ÄKTA Systems
 (c)2014 - Yasar L. Ahmed
-v0.11
+v0.12
 '''
 
 import struct
@@ -227,8 +227,8 @@ def meta2_read(inp):
     with open(file_in,'rb') as fo:
         fo.seek(inp['d_start'])
         tmp_data = fo.read(inp['d_size'])
-        size = tmp_data.rfind(b'\n') #declared block-size in header is always off
-        fo.seek(inp['d_start'])      #by a few bytes, hence it is redetermined here
+        size = tmp_data.rfind(b'\n') # declared block-size in header is always off
+        fo.seek(inp['d_start'])      # by a few bytes, hence it is redetermined here
         raw_data = (codecs.decode(fo.read(size), 'iso8859-1'))
         if '\r' in raw_data:
             data = raw_data
