@@ -81,8 +81,8 @@ Fractions_id = b'\x00\x00\x01\x00\x04\x00\x44\x04'
 Fractions_id2 = b'\x00\x00\x01\x00\x04\x00\x45\x04'
 Inject_id = b'\x00\x00\x01\x00\x04\x00\x46\x04'
 Inject_id2 = b'\x00\x00\x01\x00\x04\x00\x47\x04'
-LogBook_id = b'\x00\x00\x01\x00\x02\x00\x01\x13' #capital B!
-inj_sel = 0.0   #injection point is by default 0.0 ml
+LogBook_id = b'\x00\x00\x01\x00\x02\x00\x01\x13' # capital B!
+inj_sel = 0.0   # injection point is by default 0.0 ml
 
 
 def input_check(inp):
