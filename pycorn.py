@@ -3,7 +3,7 @@
 PyCORN - script to extract data from .res (results) files generated 
 by UNICORN Chromatography software supplied with ÄKTA Systems
 (c)2014 - Yasar L. Ahmed
-v0.11
+v0.12
 '''
 
 import struct
