@@ -74,9 +74,13 @@ RES_magic_id = b'\x11\x47\x11\x47\x18\x00\x00\x00\xB0\x02\x00\x00\x20\x6C\x03\x0
 CNotes_id = b'\x00\x00\x01\x00\x02\x00\x03\x22'
 Methods_id = b'\x00\x00\x01\x00\x02\x00\x01\x02'
 Logbook_id = b'\x00\x00\x01\x00\x04\x00\x48\x04'
+Logbook_id2 = b'\x00\x00\x01\x00\x04\x00\x49\x04'
 SensData_id = b'\x00\x00\x01\x00\x04\x00\x01\x14'
+SensData_id2 = b'\x00\x00\x01\x00\x04\x00\x02\x14'
 Fractions_id = b'\x00\x00\x01\x00\x04\x00\x44\x04'
+Fractions_id2 = b'\x00\x00\x01\x00\x04\x00\x45\x04'
 Inject_id = b'\x00\x00\x01\x00\x04\x00\x46\x04'
+Inject_id2 = b'\x00\x00\x01\x00\x04\x00\x47\x04'
 LogBook_id = b'\x00\x00\x01\x00\x02\x00\x01\x13' #capital B!
 inj_sel = 0.0   #injection point is by default 0.0 ml
 
@@ -175,15 +179,18 @@ def dataextractor(inp):
     Identify data type by comparing magic id, then run appropriate
     function to extract data, update orig. dict to include new data
     '''
+    meta1 = [Logbook_id, Logbook_id2, Inject_id, Inject_id2, Fractions_id, Fractions_id2]
+    meta2 = [CNotes_id, Methods_id]
+    sensor = [SensData_id, SensData_id2]
     if inp['d_size'] == 0:
         pass
-    elif inp['magic_id'] == CNotes_id or inp['magic_id'] == Methods_id:
-        inp.update(data=meta2_read(inp))
-        return inp
-    elif inp['magic_id'] == Logbook_id or inp['magic_id'] == Inject_id or inp['magic_id'] == Fractions_id:
+    elif inp['magic_id'] in meta1:
         inp.update(data=meta1_read(inp))
         return inp
-    elif inp['magic_id'] == SensData_id:
+    elif inp['magic_id'] in meta2:
+        inp.update(data=meta2_read(inp))
+        return inp
+    elif inp['magic_id'] in sensor:
         values,unit=sensor_read(inp)
         inp.update(data=values, unit=unit)
         return inp
@@ -221,8 +228,12 @@ def meta2_read(inp):
         fo.seek(inp['d_start'])
         tmp_data = fo.read(inp['d_size'])
         size = tmp_data.rfind(b'\n') #declared block-size in header is always off
-        fo.seek(inp['d_start'])        #by a few bytes, hence it is redetermined here
-        data = fo.read(size)
+        fo.seek(inp['d_start'])      #by a few bytes, hence it is redetermined here
+        raw_data = (codecs.decode(fo.read(size), 'iso8859-1'))
+        if '\r' in raw_data:
+            data = raw_data
+        else:
+            data = raw_data.replace('\n','\r\n')
     return(data)
 
 
@@ -256,8 +267,9 @@ def inject_det(inp,show="false"):
     '''
     injection_points = []
     header = readheader(inp)
+    inject_ids = [Inject_id, Inject_id2]
     for i in header:
-        if i['magic_id'] == Inject_id:
+        if i['magic_id'] in inject_ids:
             injection = meta1_read(i,silent="true")[0][0]
             injection_points.append(injection)
             if injection != 0.0:
@@ -311,11 +323,10 @@ def meta_writer(inp):
     writes meta-data to txt-files
     '''
     ext = "_"+inp['data_name']+".txt"
-    unicode_data = codecs.decode(inp['data'], 'iso8859-1')
-    content = unicode_data.encode('utf-8')
     with open(file_base+ext,'wb') as fout:
         print((" Writing {0}").format(inp['data_name']))
-        fout.write(inp['data'])
+        data = (inp['data']).encode('utf-8')
+        fout.write(data)
 
 
 def data_writer(inp):
@@ -378,7 +389,7 @@ def plotter(inp,fractions):
         plt.ylim(ymin = plot_y_min, ymax = plot_y_max)
         ax = plt.gca()
         frac_y_pos = mapper(ax.get_ylim()[0],ax.get_ylim()[1],0.015)
-        plt.title(file_in + " - " + inp['run_name'] + " - " + inp['data_name'], size=12)
+        plt.title(file_in + "\n" + inp['run_name'], size=12)
         plt.ylabel(inp['unit'])
         plt.xlabel('ml')        
         ax.spines['right'].set_color('none')
@@ -410,6 +421,7 @@ def endscript():
     exit
 
 def main():
+    plottable = [SensData_id, SensData_id2]
     start = time.time()
     if args.user:
         showuser(file_in)
@@ -430,10 +442,13 @@ def main():
             if Fractions_id in magic_ids:
                 fraction_idx = magic_ids.index(Fractions_id)
                 fractions = data_storage[fraction_idx]['data']
+            elif Fractions_id2 in magic_ids:
+                fraction_idx = magic_ids.index(Fractions_id2)
+                fractions = data_storage[fraction_idx]['data']       
             else:
                 fractions = None
             for i in data_storage:
-                if i['magic_id'] == SensData_id:
+                if i['magic_id'] in plottable:
                     plotter(i,fractions)
     end = time.time()
     runtime = str(end - start)
