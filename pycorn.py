@@ -370,6 +370,9 @@ def expander(min_val,max_val,perc):
     return(min_val - x, max_val + x)
 
 def plotter(inp,fractions):
+    '''
+    plots a data series with fractions if present
+    '''
     x_val = [x[0] for x in inp['data']]
     y_val = [x[1] for x in inp['data']]
     if fractions == None:
@@ -382,6 +385,16 @@ def plotter(inp,fractions):
         plot_x_min = args.begin
     if args.finish != None:
         plot_x_max = args.finish
+    if plot_x_min != x_val[0]:
+        range_min = x_val.index(min(x_val, key= lambda x:abs(x-plot_x_min)))
+    else:
+        range_min = 0
+    if plot_x_max != x_val[-1]:
+        range_max = x_val.index(min(x_val, key= lambda x:abs(x-plot_x_max)))
+    else:
+        range_max = -1
+    x_val = x_val[range_min:range_max]
+    y_val = y_val[range_min:range_max]
     plot_y_min = expander(min(y_val),max(y_val),0.05)[0]
     plot_y_max = expander(min(y_val),max(y_val),0.025)[1]
     if type(y_val[0]) == float or type(y_val[0]) == int:
