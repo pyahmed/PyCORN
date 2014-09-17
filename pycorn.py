@@ -14,7 +14,7 @@ import time
 try:
     import matplotlib.pyplot as plt
     from matplotlib.ticker import AutoMinorLocator
-    print("\n Matplotlib found - WARNING - PLOTTING IS EXPERIMENTAL\n")
+    print("\n Matplotlib found - Plotting enabled\n")
 except ImportError:
     print("\n Matplotlib not found. Printing will not work!\n")
     plt = None
@@ -372,6 +372,8 @@ def expander(min_val,max_val,perc):
 def plotter(inp,fractions):
     '''
     plots a data series with fractions if present
+    x-scaling is based on first/last fraction (if present)
+    y-scaling is based on biggest/smallest y-value within x-range
     '''
     x_val = [x[0] for x in inp['data']]
     y_val = [x[1] for x in inp['data']]
@@ -379,8 +381,11 @@ def plotter(inp,fractions):
         plot_x_min = x_val[0]
         plot_x_max = x_val[-1]
     else:
+        frac_vol = [x[0] for x in fractions]
+        frac_delta = [abs(a - b) for a,b in zip(frac_vol,frac_vol[1:])]
+        frac_delta.append(frac_delta[-1])
         plot_x_min = fractions[0][0]
-        plot_x_max = fractions[-1][0]
+        plot_x_max = fractions[-1][0] + frac_delta[-1]
     if args.begin != None:
         plot_x_min = args.begin
     if args.finish != None:
@@ -415,15 +420,11 @@ def plotter(inp,fractions):
         ax.tick_params(axis='x',top='off',which='minor', direction='out', length=4, color='0.17')
         ax.tick_params(axis='y',right='off',which='minor', direction='out', length=4, color='0.17')
         if fractions != None:
-            frac_x = [x[0] for x in fractions]
-            frac_tmp = frac_x[1:]
-            frac_tmp.append(0)
-            frac_delta = [abs(a - b) for a,b in zip(frac_tmp,frac_x)]
             for i in fractions:
                 plt.axvline(x=i[0], ymin=0.065, ymax=0.0,color='r', linewidth=0.85)
                 plt.annotate(i[1], xy=(i[0]+frac_delta[fractions.index(i)]*0.5,frac_y_pos), horizontalalignment='center', verticalalignment='bottom', size=8, rotation=90)
         print(" Plotting " + inp['data_name'])
-        ext = "." + (args.format)[-3:]
+        ext = "." + args.format
         file_name = file_base + "_Plot_" + inp['run_name'] + "_" + inp['data_name'] + ext
         plt.savefig(file_name, papertype='a4',dpi=300)
         plt.clf()
