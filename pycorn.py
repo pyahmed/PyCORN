@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 '''
 PyCORN - script to extract data from .res (results) files generated 
@@ -28,7 +29,7 @@ parser.add_argument("-c", "--check",
 parser.add_argument("-n", "--info", 
                     help = "Display entries in header",
                     action = "store_true")
-parser.add_argument("-i", "--inject", type = int, default = 0, 
+parser.add_argument("-i", "--inject", type = int, default = -1, 
                     help = "Set injection number # as zero retention, use -t to find injection points",
                     metavar="#")
 parser.add_argument("-r", "--reduce", type = int, default = 1,
@@ -293,11 +294,12 @@ def store_in_list(inp):
     '''
     extracted_data = []
     global inj_sel
+    injection_points = inject_det(inp,show="false")
     try:
-        inj_sel = inject_det(inp,show="false")[args.inject]
+        inj_sel = injection_points[args.inject]
     except IndexError:
         print("\n ERROR - Injection point does not exist! Selected default.\n")
-        inj_sel = 0.0        
+        inj_sel = injection_points[-1]        
     header = readheader(inp)
     for i in header:
         x = dataextractor(i)
@@ -400,7 +402,7 @@ def plotter(inp,fractions):
         range_max = -1
     x_val = x_val[range_min:range_max]
     y_val = y_val[range_min:range_max]
-    plot_y_min = expander(min(y_val),max(y_val),0.05)[0]
+    plot_y_min = expander(min(y_val),max(y_val),0.085)[0]
     plot_y_max = expander(min(y_val),max(y_val),0.025)[1]
     if type(y_val[0]) == float or type(y_val[0]) == int:
         plt.xlim(xmin = plot_x_min, xmax = plot_x_max)
