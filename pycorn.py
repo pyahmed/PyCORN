@@ -409,7 +409,7 @@ def plotter(inp,fractions):
         plt.ylim(ymin = plot_y_min, ymax = plot_y_max)
         ax = plt.gca()
         frac_y_pos = mapper(ax.get_ylim()[0],ax.get_ylim()[1],0.015)
-        plt.title(file_in + "\n" + inp['run_name'], size=12)
+        plt.title(file_in, size=11)
         plt.ylabel(inp['unit'])
         plt.xlabel('ml')        
         ax.spines['right'].set_color('none')
