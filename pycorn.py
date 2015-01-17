@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 '''
 PyCORN - script to extract data from .res (results) files generated 
@@ -15,7 +15,7 @@ import time
 try:
     import matplotlib.pyplot as plt
     from matplotlib.ticker import AutoMinorLocator
-    print("\n Matplotlib found - Plotting enabled\n")
+    print("\n Matplotlib found - Printing enabled\n")
 except ImportError:
     print("\n Matplotlib not found. Printing will not work!\n")
     plt = None
