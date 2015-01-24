@@ -60,7 +60,8 @@ parser.add_argument("-u", "--user",
                     help = "Show stored user name",
                     action = "store_true")
 parser.add_argument("inp_res",
-                    help = "Input .res file",
+                    help = "Input .res file(s)",
+                    nargs='+',
                     metavar = "<file>.res")
 
 
@@ -461,37 +462,39 @@ def main():
         print("\n Matplotlib not found. Printing will not work!\n")
 
     args = parser.parse_args()
-    pycorn = Pycorn(args.inp_res, reduce=args.reduce, default_inject=args.inject)
-
-    plottable = [pycorn.SensData_id, pycorn.SensData_id2]
     start = time.time()
-    if args.user:
-        print((" ---- \n User: {0}").format(pycorn.showuser()))
-    if args.check:
-        pycorn.input_check(show=True)
-    if args.info:
-        pycorn.showheader(full=False)
-    if args.points:
-        pycorn.inject_det(show=True)
-    if args.plot or args.extract:
-        if pycorn.input_check() == True:
-            pycorn.load(show=True)
-        if args.extract:
-            for i in pycorn.values():
-                pycorn.writer(i, show=True)
-        if args.plot and plt !=None:
-            for dat in pycorn.values():
-                if dat['magic_id'] in (pycorn.Fractions_id, pycorn.Fractions_id2):
-                    fractions = dat['data']
-                    break
-            else:
-                fractions = None
+    for fname in args.inp_res:
+        print("Parsing", fname)
+        pycorn = Pycorn(fname, reduce=args.reduce, default_inject=args.inject)
 
-            for i in pycorn.values():
-                if i['magic_id'] in plottable:
-                    pycorn.plotter(i,fractions, show=True,
-                        begin=args.begin, finish=args.finish,
-                        format=args.format)
+        plottable = [pycorn.SensData_id, pycorn.SensData_id2]
+        if args.user:
+            print((" ---- \n User: {0}").format(pycorn.showuser()))
+        if args.check:
+            pycorn.input_check(show=True)
+        if args.info:
+            pycorn.showheader(full=False)
+        if args.points:
+            pycorn.inject_det(show=True)
+        if args.plot or args.extract:
+            if pycorn.input_check() == True:
+                pycorn.load(show=True)
+            if args.extract:
+                for i in pycorn.values():
+                    pycorn.writer(i, show=True)
+            if args.plot and plt !=None:
+                for dat in pycorn.values():
+                    if dat['magic_id'] in (pycorn.Fractions_id, pycorn.Fractions_id2):
+                        fractions = dat['data']
+                        break
+                else:
+                    fractions = None
+
+                for i in pycorn.values():
+                    if i['magic_id'] in plottable:
+                        pycorn.plotter(i,fractions, show=True,
+                            begin=args.begin, finish=args.finish,
+                            format=args.format)
 
     end = time.time()
     runtime = str(end - start)
