@@ -10,4 +10,5 @@ setup(
     packages=['pycorn',],
     license='GNU General Public License v2 (GPLv2)',
     long_description=open('README.md').read(),
+    url='https://github.com/pyahmed/PyCORN',
 )
