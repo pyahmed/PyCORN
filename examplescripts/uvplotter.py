@@ -31,6 +31,8 @@ parser.add_argument("--ymin2", default=None, type=float,
                     help = "Lower bound on the right y-axis")
 parser.add_argument("--ymax2", default=None, type=float,
                     help = "Upper bound on the right y-axis")
+parser.add_argument("--dpi", default=None, type=int,
+                    help = "DPI (dots per inch) for raster images (png, jpg, etc.)")
 
 args = parser.parse_args()
 
@@ -79,5 +81,5 @@ for fname in args.inp_res:
         
         outputpath = path.with_name('{}-{}.{}'.format(
                     path.stem, name, args.ext))
-        plt.savefig(str(outputpath), bbox_inches='tight')
+        plt.savefig(str(outputpath), bbox_inches='tight', dpi=args.dpi)
         print(outputpath)
