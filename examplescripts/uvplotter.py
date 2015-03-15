@@ -18,7 +18,7 @@ parser.add_argument("inp_res",
                     nargs='+',
                     metavar = "<file>.res")
 parser.add_argument("-e", "--ext", default='pdf',
-                    help = "Extension of image type to use")
+                    help = "Image type to use, e.g. 'jpg', 'png', 'eps', or 'pdf' (default: pdf)")
 parser.add_argument("--xmin", default=None, type=float,
                     help = "Lower bound on the x-axis")
 parser.add_argument("--xmax", default=None, type=float,
