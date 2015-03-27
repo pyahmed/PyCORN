@@ -9,8 +9,8 @@ dr = 'PyCORN'
 if dr not in sys.path: sys.path.append(dr)
 from pycorn import Pycorn
 
-blue = '#377EB8'
-green = '#4DAF4A'
+blue = '#1919ff'
+red = '#CC0000'
 parser = argparse.ArgumentParser()
 
 parser.add_argument("inp_res",
@@ -53,10 +53,10 @@ for fname in args.inp_res:
     
     for name in 'general', 'sizeex':
         fig, ax = plt.subplots(figsize=(4,3))
-        ax.plot(UVx, UV, color=blue, lw=2)
+        ax.plot(UVx, UV, color=blue, lw=1)
 
         ax2 = ax.twinx()
-        ax2.plot(condx, cond, color=green, lw=2)
+        ax2.plot(condx, cond, color=red, lw=1)
 
         ax.set_xlabel('Elution Volume (ml)')
         ax.set_ylabel('Absorbance (mAu)', color=blue)
@@ -64,13 +64,13 @@ for fname in args.inp_res:
         ax.set_ylim(args.ymin, args.ymax)
         ax2.set_ylabel(
             r'Conductivity $\left(\frac{\mathrm{mS}}{\mathrm{cm}}\right)$',
-            color=green)
+            color=red)
 
         for tl in ax.get_yticklabels():
             tl.set_color(blue)
 
         for tl in ax2.get_yticklabels():
-            tl.set_color(green)
+            tl.set_color(red)
         
         ymax2 = args.ymax2
         if name == 'sizeex':
