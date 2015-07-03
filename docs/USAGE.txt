@@ -1,40 +1,52 @@
 How to use PyCORN
 =================
-usage: pycorn.py [-h] [-c] [-n] [-i #] [-r #] [-t] [-e] [-p] [-b #] [-s #]
-                 [-f {svg,svgz,tif,tiff,jpg,jpeg,png,ps,eps,raw,rgba,pdf,pgf}]
-                 [-u]
-                 <file>.res
+usage: pycorn-bin.py [-h] [-c] [-n] [-i #] [-r #] [-t] [-e] [-p]
+                     [--no_fractions] [--xmin #] [--xmax #] [--par1 PAR1]
+                     [--par2 PAR2]
+                     [-f {svg,svgz,tif,tiff,jpg,jpeg,png,ps,eps,raw,rgba,pdf,pgf
+}]
+                     [-d DPI] [-u] [--version]
+                     <file>.res [<file>.res ...]
 
 Extract data from UNICORN .res files to .csv/.txt and plot them (matplotlib
 required)
 
 positional arguments:
-  <file>.res            Input .res file
+  <file>.res            Input .res file(s)
 
 optional arguments:
   -h, --help            show this help message and exit
   -c, --check           Perform simple check if file is supported
   -n, --info            Display entries in header
   -i #, --inject #      Set injection number # as zero retention, use -t to
-						find injection points
-  -r #, --reduce #      Write/Plot only every n sample
                         find injection points
+  -r #, --reduce #      Write/Plot only every n sample
   -t, --points          Display injection points
-  -e, --extract         Extract supported data blocks
   -u, --user            Show stored user name
+  --version             show program's version number and exit
+
+Extracting:
+  Options for writing csv/txt files
+
+  -e, --extract         Write csv file for supported data blocks
 
 Plotting:
   Options for plotting
 
   -p, --plot            Plot curves
-  -b #, --begin #       Start point for plotting (in ml)
-  -s #, --finish #      End point for plotting (in ml)
+  --no_fractions        Disable plotting of fractions
+  --xmin #              Lower bound on the x-axis
+  --xmax #              Upper bound on the x-axis
+  --par1 PAR1           Data for 2nd y-axis (Default=Cond)
+  --par2 PAR2           Data for 3rd y-axis (Default=None)
   -f {svg,svgz,tif,tiff,jpg,jpeg,png,ps,eps,raw,rgba,pdf,pgf}, --format {svg,svg
 z,tif,tiff,jpg,jpeg,png,ps,eps,raw,rgba,pdf,pgf}
                         File format of plot files (default: pdf)
+  -d DPI, --dpi DPI     DPI (dots per inch) for raster images (png, jpg,
+                        etc.). Default is 300.
 
 Notes:
-By default PyCORN will plot from first to last fraction, as that is usually the interesting part. If no fractions are present in the run then from beginning to end. To override this behaviour you can use the (both) optional -b/-s switches to specify beginning and finish.
+By default PyCORN will plot from first to last fraction, as that is usually the interesting part. If no fractions are present in the run then from beginning to end. To override this behaviour you can use the (both) optional --xmin/--xmax switches to specify beginning and of the plot.
                         
 Examples:
 Show user who ran method:
@@ -56,4 +68,4 @@ Plot every third value:
 pycorn.py -p -r 3 input.res
 
 Plot from 100 to 200ml:
-pycorn.py -p -b 100 -s 200 input.res
+pycorn.py -p --xmin 100 --xmax 200 input.res

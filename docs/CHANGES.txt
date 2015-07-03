@@ -1,3 +1,14 @@
+v0.12
+======
+- Logbook is extracted and written to txt-file
+- Some parts rewritten
+- Fractions are also plotted
+- Improved scaling of y-axis (still not perfect)
+- Option to set start/end-point for plotting
+- Handles files that have been analyzed and re-saved
+
+
+
 v0.11
 ======
 - changed data structure (now mostly dicts)
