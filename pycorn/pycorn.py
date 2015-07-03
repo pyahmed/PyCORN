@@ -13,7 +13,6 @@ import struct
 import codecs
 import os
 
-
 class pc_res3(OrderedDict):
     """A class for holding the PyCORN/RESv3 data.
     A subclass of `dict`, with the form `data_name`: `data`.
@@ -33,12 +32,13 @@ class pc_res3(OrderedDict):
     Inject_id2 = b'\x00\x00\x01\x00\x04\x00\x47\x04'
     LogBook_id = b'\x00\x00\x01\x00\x02\x00\x01\x13'  # capital B!
 
-    def __init__(self, file_name, reduce=1, default_inject=1):
+    def __init__(self, file_name, reduce=1, inj_sel=-1):
         OrderedDict.__init__(self)
         self.file_name = file_name
         self.reduce = reduce
-        self.default_inject = default_inject
-        self.inj_sel = 0.0  # injection point is by default 0.0 ml
+        self.injection_points = None
+        self.inj_sel = inj_sel
+        self.inject_vol = None
         self.header_read = False
 
         with open(self.file_name, 'rb') as f:
@@ -115,7 +115,6 @@ class pc_res3(OrderedDict):
         '''
         Prints content of header
         '''
-        self.readheader()
         print((" ---- \n Header of {0}: \n").format(self.file_name))
         if full:
             print("  MAGIC_ID, ENTRY_NAME, BLOCK_SIZE, OFFSET_TO_NEXT, ADRESSE, OFFSET_TO_DATA")
@@ -163,7 +162,7 @@ class pc_res3(OrderedDict):
             dat.update(data=values, unit=unit, data_type= 'curve')
             return dat
 
-    def meta1_read(self, dat, show=False):
+    def meta1_read(self, dat, show=False, do_it_for_inj_det=False):
         '''
         Extracts meta-data/type1, Logbook, fractions and Inject marks
         for a specific datum
@@ -171,11 +170,13 @@ class pc_res3(OrderedDict):
         if show:
             print((" Reading: {0}").format(dat['data_name']))
         final_data = []
-
+        inj_vol_to_subtract = self.inject_vol
+        if do_it_for_inj_det:
+            inj_vol_to_subtract = 0.0     
         for i in range(dat['d_start'], dat['d_end'], 180):
             dp = struct.unpack("dd158s", self.raw_data[i:i + 174])
             # acc_time = dp[0] # not used atm
-            acc_volume = round(dp[1] - self.inj_sel, 4)
+            acc_volume = round(dp[1] - inj_vol_to_subtract, 4)
             label = (codecs.decode(dp[2], 'iso8859-1')).rstrip('\x00')
             merged_data = acc_volume, label
             final_data.append(merged_data)
@@ -219,7 +220,7 @@ class pc_res3(OrderedDict):
             s_unit_dec = (codecs.decode(s_unit[0], 'iso8859-1')).rstrip('\x00')
         for i in range(dat['d_start'], dat['d_end'], 8):
             sread = struct.unpack("ii", fread[i:i + 8])
-            data = round((sread[0] / 100.0) - self.inj_sel, 4), sread[1] / sensor_div
+            data = round((sread[0] / 100.0) - self.inject_vol, 4), sread[1] / sensor_div
             final_data.append(data)
         return (final_data[0::self.reduce], s_unit_dec)
 
@@ -227,39 +228,31 @@ class pc_res3(OrderedDict):
         '''
         Finds injection points - required for adjusting retention volume
         '''
-        injection_points = []
-        self.readheader()
-        inject_ids = [self.Inject_id, self.Inject_id2]
-        for i in self.values():
-            if i['magic_id'] in inject_ids:
-                injection = self.meta1_read(i, show=show)[0][0]
-                injection_points.append(injection)
-                if injection != 0.0:
-                    injection_points.insert(0, 0.0)
-        if injection_points == []:
-            injection_points = [0.0]
-            if show:
-                print((" ---- \n Injection points: \n # \t ml \n 0 \t {0}").format(injection_points[0]))
-            return (injection_points)
-        else:
-            if show:
-                print(" ---- \n Injection points: \n # \t ml")
-                for x, y in enumerate(injection_points):
-                    print((" {0} \t {1}").format(x, y))
-            return (injection_points)
+        if self.injection_points == None:
+            self.injection_points = [0.0]
+            inject_ids = [self.Inject_id, self.Inject_id2]
+            for i in self.values():
+                if i['magic_id'] in inject_ids:
+                    injection = self.meta1_read(i, show=show, do_it_for_inj_det=True)[0][0]
+                    if injection != 0.0:
+                        self.injection_points.append(injection)
+        if show:
+            print(" ---- \n Injection points: \n # \t ml")
+            for x, y in enumerate(self.injection_points):
+                print((" {0} \t {1}").format(x, y))
+
 
     def load(self, show=False):
         '''
         extract all data and store in list
         '''
-        injection_points = self.inject_det(show=False)
-        try:
-            self.inj_sel = injection_points[self.default_inject]
-        except IndexError:
-            if show:
-                print("\n ERROR - Injection point does not exist! Selected default.\n")
-            self.inj_sel = injection_points[-1]
         self.readheader()
+        self.inject_det()
+        try:
+            self.inject_vol = self.injection_points[self.inj_sel]
+        except IndexError:
+            print("\n WARNING - Injection point does not exist! Selected default.\n")
+            self.inject_vol = self.injection_points[-1]
         for name, dat in list(self.items()):
             dat = self.dataextractor(dat, show=show)
             if dat is not None:
