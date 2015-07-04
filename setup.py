@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 try:
     from setuptools import setup
 except ImportError:
@@ -6,9 +7,12 @@ except ImportError:
 
 setup(
     name='pycorn',
-    version='0.1dev0',
+    version='0.13',
+    author='Yasar L. Ahmed',
     packages=['pycorn',],
+    scripts=['examplescripts/pycorn-bin.py'],
     license='GNU General Public License v2 (GPLv2)',
-    long_description=open('README.md').read(),
+    description='A script to extract data from UNICORN result (res) files',
+    long_description=open('README.rst').read(),
     url='https://github.com/pyahmed/PyCORN',
 )

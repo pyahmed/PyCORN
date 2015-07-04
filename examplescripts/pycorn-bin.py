@@ -236,6 +236,7 @@ def plotterX(inp,fname):
     plot_file = fname[:-4] + "_" + internal_run_name + "_plot." + args.format
     plt.savefig(plot_file, bbox_inches='tight', dpi=args.dpi)
     print("Plot saved to: " + plot_file)
+    plt.clf()
 
 def data_writer1(fname, inp):
     '''
