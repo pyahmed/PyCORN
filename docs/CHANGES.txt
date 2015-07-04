@@ -1,3 +1,10 @@
+v0.13
+======
+- Conversion to of PyCORN to class-structure, allows using PyCORN in other scripts (by Wendell Smith)
+- Plots are now UV + user selectable 2nd/3rd data block (2nd y-axis is Conductivity by default)
+- Made some changes to adapt for PyPI
+- Installation should place pycorn-bin.py in Python/Scripts-folder
+
 v0.12
 ======
 - Logbook is extracted and written to txt-file

@@ -1,5 +1,12 @@
 How to use PyCORN
-=================
+
+PyCORN may be used either via the pycorn-bin.py-script or imported as a module in your scripts (see USAGE_pycorn_module.txt).
+
+pycorn-bin.py:
+--------------
+The default installation places pycorn-bin.py in the python/scripts-folder and therefor ready-to-use on most platforms. This script re-implements most of the features of the original pycorn.py-script. Usage is very similar, as only a few paramters have changed. 
+
+
 usage: pycorn-bin.py [-h] [-c] [-n] [-i #] [-r #] [-t] [-e] [-p]
                      [--no_fractions] [--xmin #] [--xmax #] [--par1 PAR1]
                      [--par2 PAR2]
@@ -46,26 +53,26 @@ z,tif,tiff,jpg,jpeg,png,ps,eps,raw,rgba,pdf,pgf}
                         etc.). Default is 300.
 
 Notes:
-By default PyCORN will plot from first to last fraction, as that is usually the interesting part. If no fractions are present in the run then from beginning to end. To override this behaviour you can use the (both) optional --xmin/--xmax switches to specify beginning and of the plot.
+By default pycorn-bin.py will plot from first to last fraction, as that is usually the interesting part. If no fractions are present in the run then from beginning to end. To override this behaviour you can use the (both) optional --xmin/--xmax switches to specify beginning and end of the plot.
                         
 Examples:
 Show user who ran method:
-pycorn.py -u input.res
+pycorn-bin.py -u input.res
 
 Show injection points:
-pycorn.py -t input.res
+pycorn-bin.py -t input.res
 
 Extract data to csv files:
-pycorn.py -e input.res
+pycorn-bin.py -e input.res
 
 Plot all data:
-pycorn.py -p input.res
+pycorn-bin.py -p input.res
 
 Extract/plot data and adjust retention volume to injection point 1 (counting starts at 0!):
-pycorn.py -p -e -i 1 input.res
+pycorn-bin.py -p -e -i 1 input.res
 
 Plot every third value:
-pycorn.py -p -r 3 input.res
+pycorn-bin.py -p -r 3 input.res
 
 Plot from 100 to 200ml:
-pycorn.py -p --xmin 100 --xmax 200 input.res
+pycorn-bin.py -p --xmin 100 --xmax 200 input.res

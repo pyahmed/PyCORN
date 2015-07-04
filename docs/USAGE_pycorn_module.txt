@@ -1,0 +1,34 @@
+Using the pycorn module:
+
+# Importing the module
+from pycorn import pc_res3
+
+# Create an instance of the pycorn object, there are a couple of options that can be specified: 
+#     file_name = file name of the res-file that you want to load
+#     reduce = integer to only read every n sample (similar to the option found in UNICORN during export to asc)
+#     inj_sel = which injection point to use as zero-rentention. By default the last injection point is used (same as in UNICORN)
+
+# Create the instance using default options
+my_res_file = pc_res3("sample1.res")
+
+# Parse the file
+my_res_file.load()
+
+# Show available data
+print(list(my_res_file.keys()))
+
+>>>[u'CreationNotes', u'Logbook', u'UV', u'Cond', u'pH', u'Pressure', u'Temp', u'Conc', u'Fractions']
+
+# The above list is your key to access the data inside the file
+# my_res_file[key][value] value can be:
+#   data: contains the actual data, either pure text or a list with x/y-pairs as tuples
+#   unit: the unit for this data block (mAu, ms/cm etc.)
+#   run_name: an internal name (like "Manual Run 8")
+
+# For example to read-out the the unit for the UV-block:
+my_res_file['UV']['unit']
+
+# To read the actual UV-data:
+x = my_res_file['UV']['data']
+print(x[0:3])
+>>>[(0.0, -9.22), (0.06, -0.007), (0.13, -0.004)]
