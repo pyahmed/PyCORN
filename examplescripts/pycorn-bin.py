@@ -48,7 +48,7 @@ group1.add_argument("--xmax", type = float, default=None,
                     help="Upper bound on the x-axis",
                     metavar="#")
 group1.add_argument("--par1", type = str, default='Cond',
-                    help="Data for 2nd y-axis (Default=Cond)")
+                    help="Data for 2nd y-axis (Default=Cond), to disable 2nd y-axis, use --par1 None")
 group1.add_argument("--par2", type = str, default=None,
                     help="Data for 3rd y-axis (Default=None)")                 
 group1.add_argument('-f', '--format', type = str,
@@ -126,7 +126,6 @@ def smartscale(inp):
         KeyError
         uv2_data = None
         uv3_data = None
-    frac_delta = []
     try:
         frac_data = inp['Fractions']['data']
         frac_x, frac_y = xy_data(frac_data)
@@ -187,33 +186,43 @@ def plotterX(inp,fname):
             p0, = host.plot(x_dat, y_dat, label=inp[i]['data_name'], color=stl['color'],
                             ls=stl['ls'], lw=stl['lw'],alpha=stl['alpha'])
     if args.par1:
-        par1_inp = args.par1
-        par1 = host.twinx()
-        par1_data = inp[par1_inp]
-        stl = styles[par1_inp]
-        par1.set_ylabel(par1_data['data_name'] + " (" + par1_data['unit'] + ")", color=stl['color'])
-        x_dat_p1, y_dat_p1 = xy_data(par1_data['data'])
-        p1_ymin, p1_ymax = expander(min(y_dat_p1), max(y_dat_p1), 0.085)
-        par1.set_ylim(p1_ymin, p1_ymax)
-        print("Plotting: " + par1_data['data_name'])
-        p1, = par1.plot(x_dat_p1, y_dat_p1, label=par1_data['data_name'], color=stl['color'],
-                        ls=stl['ls'], lw=stl['lw'], alpha=stl['alpha'])
+        try:
+            par1_inp = args.par1
+            par1 = host.twinx()
+            par1_data = inp[par1_inp]
+            stl = styles[par1_inp[:4]]
+            par1.set_ylabel(par1_data['data_name'] + " (" + par1_data['unit'] + ")", color=stl['color'])
+            x_dat_p1, y_dat_p1 = xy_data(par1_data['data'])
+            p1_ymin, p1_ymax = expander(min(y_dat_p1), max(y_dat_p1), 0.085)
+            par1.set_ylim(p1_ymin, p1_ymax)
+            print("Plotting: " + par1_data['data_name'])
+            p1, = par1.plot(x_dat_p1, y_dat_p1, label=par1_data['data_name'], 
+            color=stl['color'], ls=stl['ls'], lw=stl['lw'], alpha=stl['alpha'])
+        except:
+            KeyError
+            if par1_inp != None:
+                print("Warning: Data block chosen for par1 does not exist!")
     if args.par2:
-        par2_inp = args.par2
-        par2 = host.twinx()
-        offset = 60
-        new_fixed_axis = par2.get_grid_helper().new_fixed_axis
-        par2.axis["right"] = new_fixed_axis(loc="right", axes=par2, offset=(offset, 0))  
-        par2.axis["right"].toggle(all=True)
-        par2_data = inp[par2_inp]
-        stl = styles[par2_inp]
-        par2.set_ylabel(par2_data['data_name'] + " (" + par2_data['unit'] + ")", color=stl['color'])
-        x_dat_p2, y_dat_p2 = xy_data(par2_data['data'])
-        p2_ymin, p2_ymax = expander(min(y_dat_p2), max(y_dat_p2), 0.075)
-        par2.set_ylim(p2_ymin, p2_ymax)
-        print("Plotting: " + par2_data['data_name'])
-        p2, = par2.plot(x_dat_p2, y_dat_p2, label=par2_data['data_name'], color=stl['color'],
-                        ls=stl['ls'], lw=stl['lw'], alpha=stl['alpha'])
+        try:
+            par2_inp = args.par2
+            par2 = host.twinx()
+            offset = 60
+            new_fixed_axis = par2.get_grid_helper().new_fixed_axis
+            par2.axis["right"] = new_fixed_axis(loc="right", axes=par2, offset=(offset, 0))  
+            par2.axis["right"].toggle(all=True)
+            par2_data = inp[par2_inp]
+            stl = styles[par2_inp[:4]]
+            par2.set_ylabel(par2_data['data_name'] + " (" + par2_data['unit'] + ")", color=stl['color'])
+            x_dat_p2, y_dat_p2 = xy_data(par2_data['data'])
+            p2_ymin, p2_ymax = expander(min(y_dat_p2), max(y_dat_p2), 0.075)
+            par2.set_ylim(p2_ymin, p2_ymax)
+            print("Plotting: " + par2_data['data_name'])
+            p2, = par2.plot(x_dat_p2, y_dat_p2, label=par2_data['data_name'], 
+            color=stl['color'],ls=stl['ls'], lw=stl['lw'], alpha=stl['alpha'])
+        except:
+            KeyError
+            if par2_inp != None:
+                print("Warning: Data block chosen for par2 does not exist!")
     if args.no_fractions:
         try:
             frac_data = inp['Fractions']['data']
@@ -231,7 +240,7 @@ def plotterX(inp,fname):
     host.legend(fontsize=8, fancybox=True, labelspacing=0.4, loc='upper right')
     host.xaxis.set_minor_locator(AutoMinorLocator())
     host.yaxis.set_minor_locator(AutoMinorLocator())
-    plt.title(fname, loc='left')
+    plt.title(fname, loc='left', size=8)
     internal_run_name = str(inp['Logbook']['run_name'])
     plot_file = fname[:-4] + "_" + internal_run_name + "_plot." + args.format
     plt.savefig(plot_file, bbox_inches='tight', dpi=args.dpi)
@@ -269,10 +278,10 @@ styles = {'UV':{'color': '#1919FF', 'lw': 1.6, 'ls': "-", 'alpha':1.0},
 'UV1_':{'color': '#1919FF', 'lw': 1.6, 'ls': "-", 'alpha':1.0},
 'UV2_':{'color': '#e51616', 'lw': 1.4, 'ls': "-", 'alpha':1.0},
 'UV3_':{'color': '#c73de6', 'lw': 1.2, 'ls': "-", 'alpha':1.0},
-'Cond':{'color': '#62181A', 'lw': 1.4, 'ls': "-", 'alpha':0.75},
+'Cond':{'color': '#FF7C29', 'lw': 1.4, 'ls': "-", 'alpha':0.75},
 'Conc':{'color': '#0F990F', 'lw': 1.0, 'ls': "-", 'alpha':0.75},
-'Pres':{'color': '#3E1719', 'lw': 1.0, 'ls': "-", 'alpha':0.75},
-'Temp':{'color': '#e04730', 'lw': 1.0, 'ls': "-", 'alpha':0.75},
+'Pres':{'color': '#C0CBBA', 'lw': 1.0, 'ls': "-", 'alpha':0.50},
+'Temp':{'color': '#b29375', 'lw': 1.0, 'ls': "-", 'alpha':0.75},
 'Inje':{'color': '#d56d9d', 'lw': 1.0, 'ls': "-", 'alpha':0.75},
 'pH':{'color': '#0C7F7F', 'lw': 1.0, 'ls': "-", 'alpha':0.75},}
 

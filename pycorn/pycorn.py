@@ -1,10 +1,9 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 '''
 PyCORN - script to extract data from .res (results) files generated
 by UNICORN Chromatography software supplied with ÄKTA Systems
 (c)2014-2015 - Yasar L. Ahmed
-v0.13
+v0.14
 '''
 
 from __future__ import print_function
@@ -218,6 +217,9 @@ class pc_res3(OrderedDict):
         for i in range(dat['adresse'] + 207, dat['adresse'] + 222, 15):
             s_unit = struct.unpack("15s", fread[i:i + 15])
             s_unit_dec = (codecs.decode(s_unit[0], 'iso8859-1')).rstrip('\x00')
+            # FIX: in some files the unit for temperature reads 'C' instead of '°C' 
+            if s_unit_dec == 'C':
+                s_unit_dec = u'°C'
         for i in range(dat['d_start'], dat['d_end'], 8):
             sread = struct.unpack("ii", fread[i:i + 8])
             data = round((sread[0] / 100.0) - self.inject_vol, 4), sread[1] / sensor_div
