@@ -236,8 +236,12 @@ def plotterX(inp,fname):
                          horizontalalignment='center', verticalalignment='bottom', size=8, rotation=90)
         except:
             KeyError
+    if inp.inject_vol != 0.0:
+        injections = inp.injection_points
+        host.axvline(x=injections[args.inject], ymin=0.10, ymax=0.0, color='#FF3292',
+                     ls ='-', marker='v', markevery=2, linewidth=1.5, alpha=0.85, label='Inject')
     host.set_xlim(plot_x_min, plot_x_max)
-    host.legend(fontsize=8, fancybox=True, labelspacing=0.4, loc='upper right')
+    host.legend(fontsize=8, fancybox=True, labelspacing=0.4, loc='upper right', numpoints=1)
     host.xaxis.set_minor_locator(AutoMinorLocator())
     host.yaxis.set_minor_locator(AutoMinorLocator())
     plt.title(fname, loc='left', size=8)
