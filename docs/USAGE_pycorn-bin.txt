@@ -35,7 +35,9 @@ optional arguments:
 Extracting:
   Options for writing csv/txt files
 
-  -e, --extract         Write csv file for supported data blocks
+  -e {csv,xlsx}, --extract {csv,xlsx}
+                        Write data to csv or xlsx file for supported data
+                        blocks
 
 Plotting:
   Options for plotting
@@ -63,7 +65,11 @@ Show injection points:
 pycorn-bin.py -t input.res
 
 Extract data to csv files:
-pycorn-bin.py -e input.res
+pycorn-bin.py -e csv input.res
+
+
+Extract data to xlsx-file:
+pycorn-bin.py -e xlsx input.res
 
 Plot all data:
 pycorn-bin.py -p input.res
