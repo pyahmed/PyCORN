@@ -39,6 +39,7 @@ class pc_res3(OrderedDict):
         self.inj_sel = inj_sel
         self.inject_vol = None
         self.header_read = False
+        self.internal_name = ''
 
         with open(self.file_name, 'rb') as f:
             self.raw_data = f.read()
@@ -249,6 +250,7 @@ class pc_res3(OrderedDict):
         extract all data and store in list
         '''
         self.readheader()
+        self.run_name = self['Logbook']['run_name']
         self.inject_det()
         try:
             self.inject_vol = self.injection_points[self.inj_sel]

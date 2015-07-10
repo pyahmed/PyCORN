@@ -1,14 +1,33 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+'''
+PyCORN - script to extract data from .res (results) files generated
+by UNICORN Chromatography software supplied with ÄKTA Systems
+(c)2014-2015 - Yasar L. Ahmed
+v0.14
+'''
 import argparse
-from mpl_toolkits.axes_grid1 import host_subplot
-from matplotlib.ticker import AutoMinorLocator
-import mpl_toolkits.axisartist as AA
-import matplotlib.pyplot as plt
 from pycorn import pc_res3
+try:
+    from mpl_toolkits.axes_grid1 import host_subplot
+    from matplotlib.ticker import AutoMinorLocator
+    import mpl_toolkits.axisartist as AA
+    import matplotlib.pyplot as plt
+    plotting = True
+except:
+    ImportError
+    print("WARNING: Matplotlib not found - Plotting disabled!")
+    plotting = False
 
-pcscript_version = 0.13
+try:
+    import xlsxwriter
+    xlsx = True
+except:
+    ImportError
+    print("WARNING: xlsxwriter not found - xlsx-output disabled!")
+    xlsx = False
+
+pcscript_version = 0.14
 
 parser = argparse.ArgumentParser(
     description = "Extract data from UNICORN .res files to .csv/.txt and plot them (matplotlib required)",
@@ -30,9 +49,8 @@ parser.add_argument("-t", "--points",
                     action = "store_true")
 
 group0 = parser.add_argument_group('Extracting', 'Options for writing csv/txt files')
-group0.add_argument("-e", "--extract", 
-                    help = "Write csv file for supported data blocks",
-                    action = "store_true")
+group0.add_argument("-e", "--extract", type=str, choices=['csv','xlsx'],
+                    help = "Write data to csv or xlsx file for supported data blocks")
 
 group1 = parser.add_argument_group('Plotting', 'Options for plotting')
 group1.add_argument("-p", "--plot", 
@@ -185,6 +203,8 @@ def plotterX(inp,fname):
             stl = styles[i[:4]]
             p0, = host.plot(x_dat, y_dat, label=inp[i]['data_name'], color=stl['color'],
                             ls=stl['ls'], lw=stl['lw'],alpha=stl['alpha'])
+    if args.par1 == 'None':
+        args.par1 = None
     if args.par1:
         try:
             par1_inp = args.par1
@@ -238,15 +258,14 @@ def plotterX(inp,fname):
             KeyError
     if inp.inject_vol != 0.0:
         injections = inp.injection_points
-        host.axvline(x=injections[args.inject], ymin=0.10, ymax=0.0, color='#FF3292',
+        host.axvline(x=0, ymin=0.10, ymax=0.0, color='#FF3292',
                      ls ='-', marker='v', markevery=2, linewidth=1.5, alpha=0.85, label='Inject')
     host.set_xlim(plot_x_min, plot_x_max)
     host.legend(fontsize=8, fancybox=True, labelspacing=0.4, loc='upper right', numpoints=1)
     host.xaxis.set_minor_locator(AutoMinorLocator())
     host.yaxis.set_minor_locator(AutoMinorLocator())
     plt.title(fname, loc='left', size=8)
-    internal_run_name = str(inp['Logbook']['run_name'])
-    plot_file = fname[:-4] + "_" + internal_run_name + "_plot." + args.format
+    plot_file = fname[:-4] + "_" + inp.run_name + "_plot." + args.format
     plt.savefig(plot_file, bbox_inches='tight', dpi=args.dpi)
     print("Plot saved to: " + plot_file)
     plt.clf()
@@ -255,10 +274,9 @@ def data_writer1(fname, inp):
     '''
     writes sensor/run-data to csv-files
     '''
-    run_name = inp['Logbook']['run_name']
     for i in inp.keys():
-        print("Extracting: " + inp[i]['data_name'])
-        outfile_base = fname[:-4] + "_" + run_name + "_" + inp[i]['data_name']
+        print("Writing: " + inp[i]['data_name'])
+        outfile_base = fname[:-4] + "_" + inp.run_name + "_" + inp[i]['data_name']
         type = inp[i]['data_type']
         if type == 'meta':
             data = inp[i]['data']
@@ -276,6 +294,40 @@ def data_writer1(fname, inp):
                     dp = str(x) + sep + str(y) + str('\r\n')
                     data_to_write = dp.encode('utf-8')
                     fout.write(data_to_write)
+
+def generate_xls(inp, fname):
+    '''
+    Input = pycorn object
+    output = xlsx file
+    '''
+    xls_filename = fname[:-4] + "_" + inp.run_name + ".xlsx"
+    workbook = xlsxwriter.Workbook(xls_filename)
+    worksheet = workbook.add_worksheet()
+    writable_blocks = [inp.Fractions_id, inp.Fractions_id2, inp.SensData_id, inp.SensData_id2]
+    d_list = []
+    for i in inp.keys():
+        if inp[i]['magic_id'] in writable_blocks:
+            d_list.append(i)
+    for i in d_list:
+        dat = inp[i]['data']
+        try:
+            unit = inp[i]['unit']
+        except:
+            KeyError
+            unit = 'Fraction'
+        header1 = (inp[i]['data_name'], '')
+        header2 = ('ml', unit)
+        dat.insert(0, header1)
+        dat.insert(1, header2)
+        row = 0
+        col = d_list.index(i) *2
+        print("Writing: " + i)
+        for x_val, y_val in (dat):
+            worksheet.write(row, col, x_val)
+            worksheet.write(row, col + 1, y_val)
+            row += 1
+    workbook.close()
+    print("Data written to: " + xls_filename) 
 
                     
 styles = {'UV':{'color': '#1919FF', 'lw': 1.6, 'ls': "-", 'alpha':1.0},
@@ -296,8 +348,10 @@ def main2():
             args.inject = -1
         fdata = pc_res3(fname, reduce = args.reduce, inj_sel=args.inject)
         fdata.load()
-        if args.extract:
+        if args.extract == 'csv':
             data_writer1(fname, fdata)
+        if args.extract == 'xlsx' and xlsx == True:
+            generate_xls(fdata, fname)
         if args.check:
             fdata.input_check(show=True)
         if args.info:
@@ -307,7 +361,7 @@ def main2():
         if args.user:
             user = fdata.get_user()
             print("User: " + user)
-        if args.plot:
+        if args.plot and plotting:
             plotterX(fdata, fname)
 
 main2()
