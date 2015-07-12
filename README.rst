@@ -16,7 +16,10 @@ v0.14 released:
 
 - Inject mark is also plotted
 - xlsx output added (requires xlsxwriter)
+- Fixed par1-error when selecting None
+- Fixed par1/2-error when selecting data blocks with longer data name
 - Minor changes & fixes
+- Included Docs
 
 
 Installation
@@ -37,8 +40,8 @@ Requirements
 
 Usage
 -----
-- See docs/USAGE_pycorn-bin.txt if you want to extract/plot data directly
-- See docs/USAGE_pycorn_module.txt if you want to import it into your script
+- See pycorn/docs/USAGE_pycorn-bin.txt if you want to extract/plot data directly
+- See pycorn/docs/USAGE_pycorn_module.txt if you want to import it into your script
 
 
 License

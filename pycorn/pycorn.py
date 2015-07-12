@@ -39,7 +39,7 @@ class pc_res3(OrderedDict):
         self.inj_sel = inj_sel
         self.inject_vol = None
         self.header_read = False
-        self.internal_name = ''
+        self.run_name = ''
 
         with open(self.file_name, 'rb') as f:
             self.raw_data = f.read()
