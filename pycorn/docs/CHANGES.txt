@@ -1,3 +1,12 @@
+v0.14
+======
+- Inject mark is also plotted
+- xlsx output added (requires xlsxwriter)
+- Fixed par1-error when selecting None
+- Fixed par1/2-error when selecting data blocks with longer data name
+- Minor changes & fixes
+- Included Docs
+
 v0.13
 ======
 - Conversion to of PyCORN to class-structure, allows using PyCORN in other scripts (by Wendell Smith)
