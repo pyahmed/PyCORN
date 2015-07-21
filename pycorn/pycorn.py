@@ -8,9 +8,12 @@ v0.14
 
 from __future__ import print_function
 from collections import OrderedDict
+from zipfile import ZipFile
+from zipfile import is_zipfile
 import struct
 import codecs
 import os
+import io
 
 class pc_res3(OrderedDict):
     """A class for holding the PyCORN/RESv3 data.
@@ -264,3 +267,104 @@ class pc_res3(OrderedDict):
             else:
                 # TODO: Maybe we should keep this around?
                 del self[name]
+                
+class pc_uni6(OrderedDict):
+    '''
+    A class for holding the pycorn/RESv6 data
+    A subclass of `dict`, with the form `data_name`: `data`.
+    '''
+    # for manual zip-detection
+    zip_magic_start = b'\x50\x4B\x03\x04\x2D\x00\x00\x00\x08'
+    zip_magic_end = b'\x50\x4B\x05\x06\x00\x00\x00\x00'
+    
+    def __init__(self, inp_file):
+        OrderedDict.__init__(self)
+        self.file_name = inp_file
+    
+    def load(self, show=False):
+        '''
+        zip-files inside the zip-bundle are replaced by dicts, again with dicts with filename:content
+        Chrom.#_#_True (=zip-files) files are unpacked from binary to floats by unpacker()
+        To access x/y-value of Chrom.1_2:
+        udata = pc_uni6("mybundle.zip")
+        udata.load()
+        x = udata['Chrom.1_2_True']['CoordinateData.Volumes']
+        y = udata['Chrom.1_2_True']['CoordinateData.Amplitudes']
+        '''
+        with open(self.file_name, 'rb') as f:
+            input_zip = ZipFile(f)
+            zip_data = self.zip2dict(input_zip)
+            self.update(zip_data)
+            proc_yes = []
+            proc_no = []
+            for i in self.keys():
+                tmp_raw = io.BytesIO(input_zip.read(i))
+                f_header = tmp_raw.read(9)
+                # tmp_raw.seek(0)
+                # the following if block is to fix the non-standard zip files
+                # by stripping out all the null-bytes at the end
+                # see https://bugs.python.org/issue24621
+                if f_header == self.zip_magic_start:
+                    proper_zip = tmp_raw.getvalue()
+                    f_end = proper_zip.rindex(self.zip_magic_end) + 22
+                    tmp_raw = io.BytesIO(proper_zip[0:f_end])
+                if is_zipfile(tmp_raw):
+                    tmp_zip = ZipFile(tmp_raw)
+                    x = {i:self.zip2dict(tmp_zip)}
+                    self.update(x)
+                    proc_yes.append(i)
+                else:
+                    pass
+                    proc_no.append(i)
+            print("Loaded " + self.file_name + " into memory")
+            print("\n-Supported-")
+            for i in proc_yes:
+                print(" " + i)
+            print("\n-Not supported-")
+            for i in proc_no:
+                print(" " + i)
+        # filter out data we dont deal with atm
+        to_process = []
+        for i in self.keys():
+            if "Chrom" in i and not "Xml" in i:
+                to_process.append(i)
+        print("\nFiles to process:")
+        for i in to_process:
+            print(" " + i)
+        for i in to_process:
+            for n in self[i].keys():
+                if "DataType" in n:
+                    a = self[i][n]
+                    b = a.decode('utf-8')
+                    x = b.strip("\r\n")
+                else:
+                    x = self.unpacker(self[i][n])
+                tmp_dict = {n:x}
+                self[i].update(tmp_dict)
+        print("Finished decoding x/y-data!")
+
+    @staticmethod
+    def zip2dict(inp):
+        '''
+        input = zip object
+        outout = dict with filename:file-object pairs
+        '''
+        mydict = {}
+        for i in inp.NameToInfo:
+            tmp_dict = {i:inp.read(i)}
+            mydict.update(tmp_dict)
+        return(mydict)
+    
+    @staticmethod
+    def unpacker(inp):
+        '''
+        input = data block
+        output = list of values
+        '''
+        read_size = len(inp) - 48
+        values = []
+        for i in range(47, read_size, 4):
+            x = struct.unpack("<f", inp[i:i+4])
+            x = x[0]
+            values.append(x)
+        return(values)
