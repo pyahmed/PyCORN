@@ -4,7 +4,7 @@
 PyCORN - script to extract data from .res (results) files generated
 by UNICORN Chromatography software supplied with ÄKTA Systems
 (c)2014-2015 - Yasar L. Ahmed
-v0.14
+v0.15
 '''
 import argparse
 from pycorn import pc_res3
@@ -27,7 +27,7 @@ except:
     print("WARNING: xlsxwriter not found - xlsx-output disabled!")
     xlsx = False
 
-pcscript_version = 0.14
+pcscript_version = 0.15
 
 parser = argparse.ArgumentParser(
     description = "Extract data from UNICORN .res files to .csv/.txt and plot them (matplotlib required)",
