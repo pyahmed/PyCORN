@@ -58,16 +58,7 @@ group1.add_argument("-p", "--plot",
                     action = "store_true")
 group1.add_argument("--no_fractions", 
                     help="Disable plotting of fractions",
-                    action = "store_true")
-group1.add_argument("--no_inject", 
-                    help="Disable plotting of inject marker(s)",
-                    action = "store_true")
-group1.add_argument("--no_legend", 
-                    help="Disable legend for plot",
-                    action = "store_true")
-group1.add_argument("--no_title", 
-                    help="Disable title for plot",
-                    action = "store_true")
+                    action = "store_false")
 group1.add_argument("--xmin", type = float, default=None,
                     help="Lower bound on the x-axis",
                     metavar="#")
@@ -93,7 +84,7 @@ parser.add_argument("inp_res",
                     help="Input .res file(s)",
                     nargs='+',
                     metavar="<file>.res")
-#args.no_inject
+
 args = parser.parse_args()
 
 def mapper(min_val, max_val, perc):
@@ -252,7 +243,7 @@ def plotterX(inp,fname):
             KeyError
             if par2_inp != None:
                 print("Warning: Data block chosen for par2 does not exist!")
-    if not args.no_fractions:
+    if args.no_fractions:
         try:
             frac_data = inp['Fractions']['data']
             frac_x, frac_y = xy_data(frac_data)
@@ -265,17 +256,15 @@ def plotterX(inp,fname):
                          horizontalalignment='center', verticalalignment='bottom', size=8, rotation=90)
         except:
             KeyError
-    if inp.inject_vol != 0.0 and not args.no_inject:
+    if inp.inject_vol != 0.0:
         injections = inp.injection_points
         host.axvline(x=0, ymin=0.10, ymax=0.0, color='#FF3292',
                      ls ='-', marker='v', markevery=2, linewidth=1.5, alpha=0.85, label='Inject')
     host.set_xlim(plot_x_min, plot_x_max)
-    if not args.no_legend:
-        host.legend(fontsize=8, fancybox=True, labelspacing=0.4, loc='upper right', numpoints=1)
+    host.legend(fontsize=8, fancybox=True, labelspacing=0.4, loc='upper right', numpoints=1)
     host.xaxis.set_minor_locator(AutoMinorLocator())
     host.yaxis.set_minor_locator(AutoMinorLocator())
-    if not args.no_title:
-        plt.title(fname, loc='left', size=9)
+    plt.title(fname, loc='left', size=8)
     plot_file = fname[:-4] + "_" + inp.run_name + "_plot." + args.format
     plt.savefig(plot_file, bbox_inches='tight', dpi=args.dpi)
     print("Plot saved to: " + plot_file)
