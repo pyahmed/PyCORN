@@ -4,7 +4,7 @@
 PyCORN - script to extract data from .res (results) files generated
 by UNICORN Chromatography software supplied with ÄKTA Systems
 (c)2014-2015 - Yasar L. Ahmed
-v0.15c
+v0.16
 '''
 import argparse
 from pycorn import pc_res3
@@ -123,16 +123,6 @@ def xy_data(inp):
     x_data = [x[0] for x in inp]
     y_data = [x[1] for x in inp]
     return x_data, y_data
-
-
-def uvdata(inp):
-    '''
-    helps in finding the useful data
-    '''
-    UV_blocks = [i for i in inp if i.startswith('UV') or i.endswith('nm')]
-    for i in UV_blocks:
-        if i.endswith("_0nm"):
-            UV_blocks.remove(i)
 
 
 def smartscale(inp):
