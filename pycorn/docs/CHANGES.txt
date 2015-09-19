@@ -1,4 +1,8 @@
-v.015
+v0.16b
+======
+- Fixed line ending on non-Windows setups
+
+v0.15
 ======
 - Added option to disable title for plot
 - Added option to disable plotting inject marks
