@@ -1,3 +1,17 @@
+v0.17
+======
+- Added experimental support for extracting and plotting UNICORN6 zip bundles
+
+v0.16b
+======
+- Fixed line ending on non-Windows setups
+
+v0.15
+======
+- Added option to disable title for plot
+- Added option to disable plotting inject marks
+- Added option to disable legend
+
 v0.14
 ======
 - Inject mark is also plotted
