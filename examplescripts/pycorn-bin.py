@@ -3,11 +3,13 @@
 '''
 PyCORN - script to extract data from .res (results) files generated
 by UNICORN Chromatography software supplied with ÄKTA Systems
-(c)2014-2015 - Yasar L. Ahmed
-v0.14
+(c)2014-2016 - Yasar L. Ahmed
+v0.17
 '''
 import argparse
 from pycorn import pc_res3
+from pycorn import pc_uni6
+
 try:
     from mpl_toolkits.axes_grid1 import host_subplot
     from matplotlib.ticker import AutoMinorLocator
@@ -58,7 +60,16 @@ group1.add_argument("-p", "--plot",
                     action = "store_true")
 group1.add_argument("--no_fractions", 
                     help="Disable plotting of fractions",
-                    action = "store_false")
+                    action = "store_true")
+group1.add_argument("--no_inject", 
+                    help="Disable plotting of inject marker(s)",
+                    action = "store_true")
+group1.add_argument("--no_legend", 
+                    help="Disable legend for plot",
+                    action = "store_true")
+group1.add_argument("--no_title", 
+                    help="Disable title for plot",
+                    action = "store_true")
 group1.add_argument("--xmin", type = float, default=None,
                     help="Lower bound on the x-axis",
                     metavar="#")
@@ -84,7 +95,7 @@ parser.add_argument("inp_res",
                     help="Input .res file(s)",
                     nargs='+',
                     metavar="<file>.res")
-
+#args.no_inject
 args = parser.parse_args()
 
 def mapper(min_val, max_val, perc):
@@ -243,7 +254,7 @@ def plotterX(inp,fname):
             KeyError
             if par2_inp != None:
                 print("Warning: Data block chosen for par2 does not exist!")
-    if args.no_fractions:
+    if not args.no_fractions:
         try:
             frac_data = inp['Fractions']['data']
             frac_x, frac_y = xy_data(frac_data)
@@ -261,10 +272,12 @@ def plotterX(inp,fname):
         host.axvline(x=0, ymin=0.10, ymax=0.0, color='#FF3292',
                      ls ='-', marker='v', markevery=2, linewidth=1.5, alpha=0.85, label='Inject')
     host.set_xlim(plot_x_min, plot_x_max)
-    host.legend(fontsize=8, fancybox=True, labelspacing=0.4, loc='upper right', numpoints=1)
+    if not args.no_legend:
+        host.legend(fontsize=8, fancybox=True, labelspacing=0.4, loc='upper right', numpoints=1)
     host.xaxis.set_minor_locator(AutoMinorLocator())
     host.yaxis.set_minor_locator(AutoMinorLocator())
-    plt.title(fname, loc='left', size=8)
+    if not args.no_title:
+        plt.title(fname, loc='left', size=9)
     plot_file = fname[:-4] + "_" + inp.run_name + "_plot." + args.format
     plt.savefig(plot_file, bbox_inches='tight', dpi=args.dpi)
     print("Plot saved to: " + plot_file)
@@ -334,6 +347,9 @@ styles = {'UV':{'color': '#1919FF', 'lw': 1.6, 'ls': "-", 'alpha':1.0},
 'UV1_':{'color': '#1919FF', 'lw': 1.6, 'ls': "-", 'alpha':1.0},
 'UV2_':{'color': '#e51616', 'lw': 1.4, 'ls': "-", 'alpha':1.0},
 'UV3_':{'color': '#c73de6', 'lw': 1.2, 'ls': "-", 'alpha':1.0},
+'UV 1':{'color': '#1919FF', 'lw': 1.6, 'ls': "-", 'alpha':1.0},
+'UV 2':{'color': '#e51616', 'lw': 1.4, 'ls': "-", 'alpha':1.0},
+'UV 3':{'color': '#c73de6', 'lw': 1.2, 'ls': "-", 'alpha':1.0},
 'Cond':{'color': '#FF7C29', 'lw': 1.4, 'ls': "-", 'alpha':0.75},
 'Conc':{'color': '#0F990F', 'lw': 1.0, 'ls': "-", 'alpha':0.75},
 'Pres':{'color': '#C0CBBA', 'lw': 1.0, 'ls': "-", 'alpha':0.50},
@@ -346,8 +362,14 @@ def main2():
     for fname in args.inp_res:
         if args.inject == None:
             args.inject = -1
-        fdata = pc_res3(fname, reduce = args.reduce, inj_sel=args.inject)
-        fdata.load()
+        if fname[-3:] == "zip":
+            fdata = pc_uni6(fname)
+            fdata.load()
+            fdata.xml_parse()
+            fdata.clean_up()
+        if fname[-3:] == "res":
+            fdata = pc_res3(fname, reduce = args.reduce, inj_sel=args.inject)
+            fdata.load()
         if args.extract == 'csv':
             data_writer1(fname, fdata)
         if args.extract == 'xlsx' and xlsx == True:
