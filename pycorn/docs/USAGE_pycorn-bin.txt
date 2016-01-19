@@ -4,7 +4,7 @@ PyCORN may be used either via the pycorn-bin.py-script or imported as a module i
 
 pycorn-bin.py:
 --------------
-The default installation places pycorn-bin.py in the python/scripts-folder and therefor ready-to-use on most platforms. This script re-implements most of the features of the original pycorn.py-script. Usage is very similar, as only a few paramters have changed. 
+The default installation places pycorn-bin.py in the python/scripts-folder and therefor ready-to-use on most platforms. This script re-implements most of the features of the original pycorn.py-script. Usage is very similar, as only a few paramters have changed. Data from UNICORN6 zip-bundles may also be plotted or extracted (experimental).
 
 
 usage: pycorn-bin.py [-h] [-c] [-n] [-i #] [-r #] [-t] [-e] [-p]
