@@ -3,13 +3,8 @@
 '''
 PyCORN - script to extract data from .res (results) files generated
 by UNICORN Chromatography software supplied with ÄKTA Systems
-<<<<<<< HEAD
-(c)2014-2015 - Yasar L. Ahmed
-v0.16
-=======
 (c)2014-2016 - Yasar L. Ahmed
 v0.17
->>>>>>> uni6
 '''
 import argparse
 from pycorn import pc_res3
@@ -34,7 +29,7 @@ except:
     print("WARNING: xlsxwriter not found - xlsx-output disabled!")
     xlsx = False
 
-pcscript_version = 0.15
+pcscript_version = 0.14
 
 parser = argparse.ArgumentParser(
     description = "Extract data from UNICORN .res files to .csv/.txt and plot them (matplotlib required)",
@@ -130,6 +125,16 @@ def xy_data(inp):
     x_data = [x[0] for x in inp]
     y_data = [x[1] for x in inp]
     return x_data, y_data
+
+
+def uvdata(inp):
+    '''
+    helps in finding the useful data
+    '''
+    UV_blocks = [i for i in inp if i.startswith('UV') or i.endswith('nm')]
+    for i in UV_blocks:
+        if i.endswith("_0nm"):
+            UV_blocks.remove(i)
 
 
 def smartscale(inp):
@@ -262,7 +267,7 @@ def plotterX(inp,fname):
                          horizontalalignment='center', verticalalignment='bottom', size=8, rotation=90)
         except:
             KeyError
-    if inp.inject_vol != 0.0 and not args.no_inject:
+    if inp.inject_vol != 0.0:
         injections = inp.injection_points
         host.axvline(x=0, ymin=0.10, ymax=0.0, color='#FF3292',
                      ls ='-', marker='v', markevery=2, linewidth=1.5, alpha=0.85, label='Inject')

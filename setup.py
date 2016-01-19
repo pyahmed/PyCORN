@@ -7,11 +7,7 @@ except ImportError:
 
 setup(
     name='pycorn',
-<<<<<<< HEAD
-    version='0.16b',
-=======
     version='0.17',
->>>>>>> uni6
     author='Yasar L. Ahmed',
     packages=['pycorn'],
     extras_require = {'plotting':  ["matplotlib"], 'xlsx-output': ['xlsxwriter']},

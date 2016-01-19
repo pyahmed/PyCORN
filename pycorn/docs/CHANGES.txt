@@ -1,10 +1,7 @@
-<<<<<<< HEAD
-=======
 v0.17
 ======
 - Added experimental support for extracting and plotting UNICORN6 zip bundles
 
->>>>>>> uni6
 v0.16b
 ======
 - Fixed line ending on non-Windows setups
