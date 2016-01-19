@@ -3,11 +3,18 @@
 '''
 PyCORN - script to extract data from .res (results) files generated
 by UNICORN Chromatography software supplied with ÄKTA Systems
+<<<<<<< HEAD
 (c)2014-2015 - Yasar L. Ahmed
 v0.16
+=======
+(c)2014-2016 - Yasar L. Ahmed
+v0.17
+>>>>>>> uni6
 '''
 import argparse
 from pycorn import pc_res3
+from pycorn import pc_uni6
+
 try:
     from mpl_toolkits.axes_grid1 import host_subplot
     from matplotlib.ticker import AutoMinorLocator
@@ -335,6 +342,9 @@ styles = {'UV':{'color': '#1919FF', 'lw': 1.6, 'ls': "-", 'alpha':1.0},
 'UV1_':{'color': '#1919FF', 'lw': 1.6, 'ls': "-", 'alpha':1.0},
 'UV2_':{'color': '#e51616', 'lw': 1.4, 'ls': "-", 'alpha':1.0},
 'UV3_':{'color': '#c73de6', 'lw': 1.2, 'ls': "-", 'alpha':1.0},
+'UV 1':{'color': '#1919FF', 'lw': 1.6, 'ls': "-", 'alpha':1.0},
+'UV 2':{'color': '#e51616', 'lw': 1.4, 'ls': "-", 'alpha':1.0},
+'UV 3':{'color': '#c73de6', 'lw': 1.2, 'ls': "-", 'alpha':1.0},
 'Cond':{'color': '#FF7C29', 'lw': 1.4, 'ls': "-", 'alpha':0.75},
 'Conc':{'color': '#0F990F', 'lw': 1.0, 'ls': "-", 'alpha':0.75},
 'Pres':{'color': '#C0CBBA', 'lw': 1.0, 'ls': "-", 'alpha':0.50},
@@ -347,8 +357,14 @@ def main2():
     for fname in args.inp_res:
         if args.inject == None:
             args.inject = -1
-        fdata = pc_res3(fname, reduce = args.reduce, inj_sel=args.inject)
-        fdata.load()
+        if fname[-3:] == "zip":
+            fdata = pc_uni6(fname)
+            fdata.load()
+            fdata.xml_parse()
+            fdata.clean_up()
+        if fname[-3:] == "res":
+            fdata = pc_res3(fname, reduce = args.reduce, inj_sel=args.inject)
+            fdata.load()
         if args.extract == 'csv':
             data_writer1(fname, fdata)
         if args.extract == 'xlsx' and xlsx == True:
