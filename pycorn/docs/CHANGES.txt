@@ -1,7 +1,3 @@
-v0.18
-======
-- fixed xmin being ignored when 0
-
 v0.17
 ======
 - Added experimental support for extracting and plotting UNICORN6 zip bundles
