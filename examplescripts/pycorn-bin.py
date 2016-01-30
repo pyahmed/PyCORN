@@ -4,7 +4,7 @@
 PyCORN - script to extract data from .res (results) files generated
 by UNICORN Chromatography software supplied with ÄKTA Systems
 (c)2014-2016 - Yasar L. Ahmed
-v0.17
+v0.18dev
 '''
 import argparse
 from pycorn import pc_res3
@@ -163,7 +163,7 @@ def smartscale(inp):
     except:
         KeyError
         frac_data = None
-    if args.xmin:
+    if args.xmin != None:
         plot_x_min = args.xmin
     else:
         if frac_data:
