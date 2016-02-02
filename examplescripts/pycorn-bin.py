@@ -362,12 +362,12 @@ def main2():
     for fname in args.inp_res:
         if args.inject == None:
             args.inject = -1
-        if fname[-3:] == "zip":
+        if (fname[-3:]).lower() == "zip":
             fdata = pc_uni6(fname)
             fdata.load()
             fdata.xml_parse()
             fdata.clean_up()
-        if fname[-3:] == "res":
+        if (fname[-3:]).lower() == "res":
             fdata = pc_res3(fname, reduce = args.reduce, inj_sel=args.inject)
             fdata.load()
         if args.extract == 'csv':
