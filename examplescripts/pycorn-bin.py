@@ -4,8 +4,9 @@
 PyCORN - script to extract data from .res (results) files generated
 by UNICORN Chromatography software supplied with ÄKTA Systems
 (c)2014-2016 - Yasar L. Ahmed
-v0.18dev
+v0.18
 '''
+
 import argparse
 from pycorn import pc_res3
 from pycorn import pc_uni6
