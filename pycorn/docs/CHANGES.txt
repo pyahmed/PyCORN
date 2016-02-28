@@ -1,3 +1,8 @@
+v0.18
+======
+- FIXED: xmin being ignored when 0
+- FIXED: Files with capitalised name ending are not loaded
+
 v0.17
 ======
 - Added experimental support for extracting and plotting UNICORN6 zip bundles

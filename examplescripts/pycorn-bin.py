@@ -4,8 +4,9 @@
 PyCORN - script to extract data from .res (results) files generated
 by UNICORN Chromatography software supplied with ÄKTA Systems
 (c)2014-2016 - Yasar L. Ahmed
-v0.17
+v0.18
 '''
+
 import argparse
 from pycorn import pc_res3
 from pycorn import pc_uni6
@@ -163,7 +164,7 @@ def smartscale(inp):
     except:
         KeyError
         frac_data = None
-    if args.xmin:
+    if args.xmin != None:
         plot_x_min = args.xmin
     else:
         if frac_data:
@@ -362,12 +363,12 @@ def main2():
     for fname in args.inp_res:
         if args.inject == None:
             args.inject = -1
-        if fname[-3:] == "zip":
+        if (fname[-3:]).lower() == "zip":
             fdata = pc_uni6(fname)
             fdata.load()
             fdata.xml_parse()
             fdata.clean_up()
-        if fname[-3:] == "res":
+        if (fname[-3:]).lower() == "res":
             fdata = pc_res3(fname, reduce = args.reduce, inj_sel=args.inject)
             fdata.load()
         if args.extract == 'csv':
