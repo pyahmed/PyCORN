@@ -3,7 +3,7 @@
 PyCORN - script to extract data from .res (results) files generated
 by UNICORN Chromatography software supplied with ÄKTA Systems
 (c)2014-2016 - Yasar L. Ahmed
-v0.18
+v0.18b
 '''
 
 from __future__ import print_function
@@ -235,14 +235,16 @@ class pc_res3(OrderedDict):
         '''
         Finds injection points - required for adjusting retention volume
         '''
+        inject_ids = [self.Inject_id, self.Inject_id2]
+        injections = []
         if self.injection_points == None:
             self.injection_points = [0.0]
-            inject_ids = [self.Inject_id, self.Inject_id2]
             for i in self.values():
                 if i['magic_id'] in inject_ids:
-                    injection = self.meta1_read(i, show=show, do_it_for_inj_det=True)[0][0]
-                    if injection != 0.0:
-                        self.injection_points.append(injection)
+                    injections = self.meta1_read(i, show=show, do_it_for_inj_det=True)
+        for i in injections:
+            if i[0] != 0.0:
+                self.injection_points.append(i[0])
         if show:
             print(" ---- \n Injection points: \n # \t ml")
             for x, y in enumerate(self.injection_points):

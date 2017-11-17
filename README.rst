@@ -17,12 +17,11 @@ PyCORN is now available as a web-service. Just drop your res/zip file, get a pre
 
 visit: http://pycornweb.appspot.com
 
+=======
 
+v0.19 released:
 
-v0.18 released:
-
-- FIXED: xmin being ignored when 0
-- FIXED: Files with capitalised name ending are not loaded
+- FIXED: Injection points not recognized properly (see https://github.com/pyahmed/PyCORN/issues/12)
 
 
 Installation
